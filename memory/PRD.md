@@ -91,11 +91,24 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 
 - **P1**: Real ML batch cron at 06:00 (currently manual trigger via `POST /api/pipeline/batch`).
 - **P1**: AES-256 encryption at rest on upload files (currently MIME+size validated only).
-- **P2**: Prometheus/Grafana/MLflow/Sentry hookup per PRD §10.4 (manifests skeleton ready).
+- **P2**: Prometheus/Grafana/Sentry hookup per PRD §10.4 (MLflow tracking ✅ delivered; manifests skeleton ready).
 - **P2**: Frontend MSW + React Testing Library suite (currently relying on agent-driven E2E).
 - **P2**: Real-customer dataset ingestion replacing synthetic 100-customer generator.
 
+## Feature additions log
+
+### 2026-02-15 — MLflow Tracking + Auto-Retrain (PRD §10.4) ✅
+- File-based MLflow store at `/app/backend/mlruns/` — no extra server needed.
+- Every `build_artifacts.py` run logs params (LightGBM config), metrics (ROC-AUC, threshold values, risk distribution), and 5 artifacts (pkl, feature_columns.json, thresholds, registry, batch CSV).
+- New service `services/mlflow_service.py`: list_runs, baseline, pin_baseline, drift_check, trigger_retrain (subprocess + background thread), auto_check_and_retrain.
+- New router `routers/mlflow.py` exposes 8 endpoints: `/api/mlflow/{runs,latest,baseline,baseline/{run_id},drift-check,retrain,retrain-status,auto-check}`.
+- RBAC enforced: `/retrain` and `/baseline/{run_id}` are admin-only (verified 403 for analyst/viewer).
+- Drift threshold: AUC drop > 5% recommends retrain (configurable via `DRIFT_THRESHOLD`).
+- UI: `components/MLflowPanel.jsx` on `/portal` shows drift badge, baseline/current AUC, AUC-drop, runs table; retrain button visible to admin only.
+- Auto-check endpoint: drift check + auto-retrain in one call.
+- Testing: 15/15 backend pytest pass, 100% UI flows verified.
+
 ## Next action items
 - Add an alerting webhook for `eligible_expand` notifications.
-- Wire MLflow tracking for model versioning and auto-retrain trigger if AUC drop > 5%.
 - Add multi-tenancy + bank-of-banks support (PRD hints at future C-Series expansion).
+- Add Prometheus exporter (`/metrics`) for API p95 and request counts.
