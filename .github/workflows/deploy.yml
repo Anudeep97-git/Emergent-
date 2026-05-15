@@ -1,0 +1,23 @@
+name: c1b-deploy
+on: { push: { branches: [main] } }
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with: { python-version: "3.12" }
+    - run: pip install -r backend/requirements.txt
+    - run: pytest backend/tests/ --cov=backend -v
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: docker build -t ${{ secrets.DOCKER_REGISTRY }}/c1b-backend:${{ github.sha }} ./backend
+    - run: docker build -t ${{ secrets.DOCKER_REGISTRY }}/c1b-frontend:${{ github.sha }} ./frontend
+    - run: docker push ${{ secrets.DOCKER_REGISTRY }}/c1b-backend:${{ github.sha }}
+    - run: docker push ${{ secrets.DOCKER_REGISTRY }}/c1b-frontend:${{ github.sha }}
+    - run: kubectl apply -f k8s/

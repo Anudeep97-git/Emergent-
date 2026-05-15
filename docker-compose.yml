@@ -1,0 +1,65 @@
+version: '3.9'
+
+# C1B Credit Risk Assessment Platform — local deployment (PRD §10.1)
+# NOTE: On Emergent preview, the app runs via supervisor (backend:8001, frontend:3000)
+# and Mongo. This compose file is the PRD-spec local deployment using Postgres.
+
+services:
+
+  backend:
+    build: ./backend
+    container_name: c1b-backend
+    ports: ["8000:8000"]
+    env_file: .env
+    environment:
+      SECRET_KEY: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      OLLAMA_URL:   http://ollama:11434
+      REDIS_URL:    redis://redis:6379
+      BASE_DIR:     /app/phase_outputs
+    depends_on:
+      db:     { condition: service_healthy }
+      redis:  { condition: service_started }
+      ollama: { condition: service_started }
+    volumes:
+      - ./backend/phase_outputs:/app/phase_outputs
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: c1b-frontend
+    ports: ["3000:80"]
+    depends_on: [backend]
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: c1b-postgres
+    environment:
+      POSTGRES_DB: c1b
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes: [ "pg_data:/var/lib/postgresql/data" ]
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: c1b-redis
+    ports: ["6379:6379"]
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    container_name: c1b-ollama
+    ports: ["11434:11434"]
+    volumes: [ "ollama_data:/root/.ollama" ]
+    restart: unless-stopped
+
+volumes:
+  pg_data:
+  ollama_data:

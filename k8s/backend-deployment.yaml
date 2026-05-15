@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: c1b-backend
+  labels: { app: c1b-backend }
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: c1b-backend }
+  template:
+    metadata:
+      labels: { app: c1b-backend }
+    spec:
+      containers:
+      - name: backend
+        image: c1b-backend:1.0.0
+        ports:
+        - containerPort: 8001
+        env:
+        - name: MONGO_URL
+          valueFrom: { secretKeyRef: { name: c1b-secrets, key: mongo_url } }
+        - name: DB_NAME
+          value: c1b_prod
+        - name: JWT_SECRET
+          valueFrom: { secretKeyRef: { name: c1b-secrets, key: jwt_secret } }
+        - name: EMERGENT_LLM_KEY
+          valueFrom: { secretKeyRef: { name: c1b-secrets, key: llm_key } }
+        readinessProbe:
+          httpGet: { path: /api/health, port: 8001 }
+          initialDelaySeconds: 8
+          periodSeconds: 10
+        livenessProbe:
+          httpGet: { path: /api/health, port: 8001 }
+          initialDelaySeconds: 20
+          periodSeconds: 20
+        resources:
+          requests: { cpu: "300m", memory: "512Mi" }
+          limits:   { cpu: "1000m", memory: "2Gi" }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: c1b-backend
+spec:
+  selector: { app: c1b-backend }
+  ports:
+  - port: 80
+    targetPort: 8001
+  type: ClusterIP
