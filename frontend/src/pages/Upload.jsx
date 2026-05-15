@@ -85,7 +85,7 @@ export default function UploadPage() {
             <div>
                 <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Phase 1 → 4 Pipeline</div>
                 <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
-                    Transaction Upload &amp; Scoring
+                    Transaction Upload & Scoring
                 </h1>
                 <p className="text-c1b-muted mt-2 text-sm max-w-2xl">
                     Drop a CSV / XLSX / JSON containing the 20-column raw schema. The pipeline ingests, validates,
@@ -104,7 +104,7 @@ export default function UploadPage() {
             >
                 <UploadIcon className="w-10 h-10 text-c1b-accent mx-auto mb-3" />
                 <div className="font-display text-xl font-bold text-c1b-primary">
-                    {file ? file.name : "Drag &amp; drop your transactions file"}
+                    {file ? file.name : "Drag & drop your transactions file"}
                 </div>
                 <div className="text-sm text-c1b-muted mt-1">Accepted: .csv, .xlsx, .json (max 50MB)</div>
                 <div className="mt-5 flex items-center justify-center gap-3">

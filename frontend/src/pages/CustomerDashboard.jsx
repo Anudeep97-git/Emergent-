@@ -137,7 +137,7 @@ export default function CustomerDashboardPage() {
                     <div>
                         <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted">Spend Trajectory</div>
                         <div className="font-display text-xl font-bold text-c1b-primary tracking-tight">
-                            12-Month Purchases &amp; Cash Advances
+                            12-Month Purchases & Cash Advances
                         </div>
                     </div>
                 </div>

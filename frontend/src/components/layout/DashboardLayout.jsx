@@ -49,7 +49,7 @@ export default function DashboardLayout() {
                 </div>
                 <nav className="flex-1 p-3 space-y-1">
                     <NavItem to="/portal" icon={Users}>Customer Portal</NavItem>
-                    <NavItem to="/upload" icon={Upload}>Upload &amp; Pipeline</NavItem>
+                    <NavItem to="/upload" icon={Upload}>Upload & Pipeline</NavItem>
                     <NavItem to="/results" icon={Activity}>Risk Results</NavItem>
                     <NavItem to="/agent" icon={Bot}>AI Agent</NavItem>
                 </nav>
