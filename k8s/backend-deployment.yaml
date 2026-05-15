@@ -25,6 +25,18 @@ spec:
           valueFrom: { secretKeyRef: { name: c1b-secrets, key: jwt_secret } }
         - name: EMERGENT_LLM_KEY
           valueFrom: { secretKeyRef: { name: c1b-secrets, key: llm_key } }
+        - name: SENTRY_DSN
+          valueFrom: { secretKeyRef: { name: c1b-secrets, key: sentry_dsn, optional: true } }
+        - name: PAGERDUTY_INTEGRATION_KEY
+          valueFrom: { secretKeyRef: { name: c1b-secrets, key: pagerduty_key, optional: true } }
+        # Prometheus multiproc support — required when WEB_CONCURRENCY > 1
+        - name: PROMETHEUS_MULTIPROC_DIR
+          value: /var/c1b/prom_multiproc
+        - name: WEB_CONCURRENCY
+          value: "4"
+        volumeMounts:
+        - name: prom-multiproc
+          mountPath: /var/c1b/prom_multiproc
         readinessProbe:
           httpGet: { path: /api/health, port: 8001 }
           initialDelaySeconds: 8

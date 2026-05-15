@@ -2,7 +2,13 @@
 
 Exposed at GET /api/metrics in Prometheus text format. Grafana derives p50/p95/p99
 from the latency histogram via `histogram_quantile(0.95, ...)`.
+
+Supports both single-process and multi-worker (gunicorn) deployments:
+  * Set `PROMETHEUS_MULTIPROC_DIR=/var/c1b/prom_multiproc` before launching workers.
+  * All gauges declare a `multiprocess_mode` so values aggregate sensibly across processes.
+  * /metrics renders via `multiprocess.MultiProcessCollector` in multiproc mode.
 """
+import os
 import time
 import logging
 import threading
@@ -13,10 +19,22 @@ from prometheus_client import (
     CollectorRegistry, Histogram, Gauge, Counter, generate_latest, CONTENT_TYPE_LATEST,
 )
 
+from services.metrics_bootstrap import is_multiproc, MULTIPROC_DIR
+
 logger = logging.getLogger("c1b.metrics")
 
 # Use a dedicated registry to avoid clashing with default global one
 REGISTRY = CollectorRegistry()
+
+# Counters and Histograms are aggregated across processes by prometheus_client
+# automatically (sum semantics). Gauges need an explicit `multiprocess_mode`.
+# We choose:
+#   - 'livesum' for additive gauges (total/error counts in a rolling window)
+#   - 'liveall' for per-label dimensional gauges (risk tier breakdown)
+#   - 'max' for slow-moving scalar state (model AUC, thresholds)
+_GAUGE_KW_LIVESUM = {"multiprocess_mode": "livesum"} if is_multiproc() else {}
+_GAUGE_KW_LIVEALL = {"multiprocess_mode": "liveall"} if is_multiproc() else {}
+_GAUGE_KW_MAX = {"multiprocess_mode": "max"} if is_multiproc() else {}
 
 # ---------- API request latency histogram ----------
 # Bucket boundaries (seconds): align with PRD p95 < 300ms target
@@ -41,18 +59,21 @@ api_error_rate = Gauge(
     "c1b_api_error_rate",
     "Rolling 5-minute error rate (5xx / total)",
     registry=REGISTRY,
+    **_GAUGE_KW_MAX,
 )
 
 api_total_requests_5m = Gauge(
     "c1b_api_total_requests_5m",
     "Total requests in the last 5 minutes",
     registry=REGISTRY,
+    **_GAUGE_KW_LIVESUM,
 )
 
 api_error_requests_5m = Gauge(
     "c1b_api_error_requests_5m",
     "5xx error requests in the last 5 minutes",
     registry=REGISTRY,
+    **_GAUGE_KW_LIVESUM,
 )
 
 # ---------- Risk-tier distribution gauges ----------
@@ -61,17 +82,20 @@ risk_tier_pct = Gauge(
     "Current % of customers in each risk tier (0.0–1.0)",
     labelnames=("tier",),
     registry=REGISTRY,
+    **_GAUGE_KW_LIVEALL,
 )
 risk_tier_drift_pct = Gauge(
     "c1b_risk_tier_drift_pct",
     "Drift in risk tier % vs MLflow baseline (current minus baseline)",
     labelnames=("tier",),
     registry=REGISTRY,
+    **_GAUGE_KW_LIVEALL,
 )
 risk_tier_high_threshold = Gauge(
     "c1b_risk_tier_high_threshold",
     "Configured high-risk alert threshold (PRD §10.4 = 0.75)",
     registry=REGISTRY,
+    **_GAUGE_KW_MAX,
 )
 risk_tier_high_threshold.set(0.75)  # PRD §10.4: alert if High Risk % > 75%
 
@@ -80,11 +104,13 @@ model_roc_auc = Gauge(
     "c1b_model_roc_auc",
     "ROC-AUC of the currently deployed LightGBM model",
     registry=REGISTRY,
+    **_GAUGE_KW_MAX,
 )
 model_auc_drift = Gauge(
     "c1b_model_auc_drift",
     "AUC drop vs baseline (PRD §10.4: retrain if > 0.05)",
     registry=REGISTRY,
+    **_GAUGE_KW_MAX,
 )
 
 
@@ -115,9 +141,30 @@ def _normalise_endpoint(path: str) -> str:
 
 
 def render() -> bytes:
-    """Refresh derived gauges and return the Prometheus text-format payload."""
+    """Refresh derived gauges and return the Prometheus text-format payload.
+
+    In multi-process mode, build a transient registry that aggregates the on-disk
+    .db files written by every worker — this is the prometheus_client pattern that
+    makes gauges/histograms consistent across `gunicorn --workers N`.
+    """
     _refresh_gauges()
+    if is_multiproc():
+        try:
+            from prometheus_client import multiprocess
+            aggregated = CollectorRegistry()
+            multiprocess.MultiProcessCollector(aggregated)
+            return generate_latest(aggregated)
+        except Exception as e:
+            logger.warning("Multiproc render failed, falling back: %s: %s", type(e).__name__, e)
     return generate_latest(REGISTRY)
+
+
+def render_info() -> Dict[str, str]:
+    return {
+        "mode": "multiprocess" if is_multiproc() else "single-process",
+        "multiproc_dir": MULTIPROC_DIR or "",
+        "pid": str(os.getpid()),
+    }
 
 
 # ---------- Derived gauge refresh ----------

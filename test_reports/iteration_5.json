@@ -1,0 +1,33 @@
+{
+  "summary": "Iteration 5 validates Prometheus multi-process support layered on top of iteration 4. Backend pytest suite extended from 11 -> 16 cases — all 16 PASS. Verified: (a) NO regression in single-process mode (all 11 existing /api/metrics/ tests still green: families, buckets, counter increments, label normalization, 5xx counter); (b) NEW endpoint GET /api/metrics/info returns 200 with {mode:'single-process', multiproc_dir:'', pid:'<digits>'} and is unauthenticated; (c) startup log line confirmed: 'C1B Credit Risk Assessment Platform v1.0.0 ready. Sentry=inactive PagerDuty=inactive Prometheus=single-process'; (d) /tmp/test_multiproc.py executed with PROMETHEUS_MULTIPROC_DIR=/tmp/c1b_prom_smoke — 3 spawned worker processes' counters aggregate correctly: c1b_api_requests_total{endpoint='/api/score',status_class='2xx'}=12.0 (5+7) and status_class='5xx'=3.0; counter_*.db, gauge_livesum_*.db, gauge_liveall_*.db, gauge_max_*.db, histogram_*.db files all written to the shared dir. (e) Static checks: gauge multiprocess_mode declarations correct (livesum for total/error counts L65,72; liveall for risk-tier per-label L80,87; max for AUC/threshold/drift L62,98,107,113); metrics_bootstrap.py exposes is_multiproc/prepare_multiproc_dir/install_worker_death_hook (atexit + SIGTERM + SIGINT); server.py calls prepare_multiproc_dir() and install_worker_death_hook() at lines 26-27, BEFORE `from routers import ...` at line 30 (verified by source-order pytest assertion); Dockerfile uses gunicorn 21.2.0 + uvicorn.workers.UvicornWorker, clears stale .db files on CMD, exports PROMETHEUS_MULTIPROC_DIR=/var/c1b/prom_multiproc + WEB_CONCURRENCY=4.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_prometheus_metrics.py",
+    "/app/test_reports/pytest/prometheus_results.xml"
+  ],
+  "action_items": [
+    "k8s/backend-deployment.yaml declares volumeMounts.prom-multiproc but is MISSING the corresponding spec.template.spec.volumes: entry (e.g., `volumes: [{name: prom-multiproc, emptyDir: {}}]`). As-is the Deployment will fail admission ('volume not found'). This is the only deploy-blocking issue found. Add the volumes block under spec.template.spec."
+  ],
+  "critical_code_review_comments": [
+    "BLOCKER (deploy-only, not runtime): /app/k8s/backend-deployment.yaml line 37-39 mounts `prom-multiproc` but no `volumes:` list is defined at spec.template.spec — Kubernetes will reject the manifest. Fix: add `volumes: - name: prom-multiproc, emptyDir: {}` under the pod spec.",
+    "metrics_bootstrap.install_worker_death_hook() correctly wraps signal handlers with try/except (ValueError/OSError) — required because uvicorn worker threads can't call signal.signal(). atexit fallback ensures mark_process_dead() still fires in those cases. Good defensive pattern.",
+    "metrics_service.render() uses a transient CollectorRegistry + MultiProcessCollector inside is_multiproc() branch, with fallback to the in-process REGISTRY on exception. Fallback is wise but the warning log uses type(e).__name__ which is enough for ops triage; consider also logging the multiproc dir path so on-call can verify mount.",
+    "Gauge multiprocess_mode choices look correct: 'livesum' for additive 5m windows (total/error counts) — values combine across workers; 'liveall' for per-tier risk distribution — keeps per-worker last write visible per label, accurate for a dimensional gauge; 'max' for slow-moving scalars (AUC, threshold, drift) — these are global truth, not per-worker.",
+    "Dockerfile CMD wraps `rm -f $PROMETHEUS_MULTIPROC_DIR/*.db` before `exec gunicorn` — duplicates what prepare_multiproc_dir() does at lifespan. Belt-and-suspenders is fine, but worth noting that prepare_multiproc_dir() runs PER worker (each gunicorn worker re-imports server.py), so it should be a no-op on subsequent workers; verified the glob.remove is idempotent.",
+    "Multiproc env wiring: import order in server.py is correct — load_dotenv() at L18, observability_service (Sentry) at L21, then metrics_bootstrap.prepare_multiproc_dir() + install_worker_death_hook() at L26-27, THEN router imports at L30. This guarantees PROMETHEUS_MULTIPROC_DIR is established before any prometheus_client Counter/Histogram/Gauge is registered, which is the documented requirement.",
+    "Test coverage gap (low risk): No pytest case asserts startup log line content. The log line was verified manually via /var/log/supervisor/backend.*.log grep; consider piping a fixture that reads supervisor log and asserts the 'Prometheus=single-process' substring on each CI run.",
+    "/api/metrics/info intentionally unauthenticated — matches /api/metrics/ scrape pattern. Verified with no Authorization header (HTTP 200). Operator runbook in /app/monitoring/README.md should call this out (not verified)."
+  ],
+  "updated_files": ["/app/backend/tests/test_prometheus_metrics.py"],
+  "success_rate": {"backend": "100% (16/16 pytest cases incl. 5 new multiproc cases) + multiproc smoke /tmp/test_multiproc.py exit 0", "frontend": "n/a (backend-only review)"},
+  "test_credentials": "admin@c1b.com / admin123 — verified working. Login response key remains 'token'.",
+  "seed_data_creation": "None. Tests reuse traffic against /api/dashboard/summary (x5), /api/customer/C001/profile, /api/observability/simulate-error, and /api/metrics/info.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 5 added Prometheus multi-process support (PROMETHEUS_MULTIPROC_DIR-driven). Current Emergent runtime stays single-process; /api/metrics/info confirms mode='single-process'. test_prometheus_metrics.py now has 16 cases (5 new under TestMetricsInfoEndpoint + TestMultiprocBootstrap). The cross-process smoke test is /tmp/test_multiproc.py — run with PROMETHEUS_MULTIPROC_DIR=/tmp/c1b_prom_smoke and it spawns 3 workers; expected aggregated counters: 2xx=12, 5xx=3. Only outstanding deploy issue: k8s/backend-deployment.yaml is missing the `volumes:` block to back the prom-multiproc volumeMount.",
+  "rca of the issue": "No runtime bugs. One deploy-time manifest issue: k8s backend deployment has a dangling volumeMount with no matching volume — flagged as action item."
+}

@@ -21,6 +21,11 @@ load_dotenv(ROOT_DIR / ".env")
 from services import observability_service as obs  # noqa: E402
 _sentry_active = obs.init_sentry()
 
+# Prometheus multiprocess bootstrap — must run BEFORE any metric is registered.
+from services.metrics_bootstrap import prepare_multiproc_dir, install_worker_death_hook, is_multiproc  # noqa: E402
+prepare_multiproc_dir()
+install_worker_death_hook()
+
 from services.db import ensure_indexes  # noqa: E402
 from routers import auth, pipeline, customer, dashboard, agent, platform, mlflow as mlflow_router, observability, metrics  # noqa: E402
 from middleware.error_rate import ErrorRateMiddleware  # noqa: E402
@@ -39,7 +44,12 @@ async def lifespan(app: FastAPI):
         await seed_initial()
     except Exception as e:
         logger.warning(f"Seed skipped: {e}")
-    logger.info(f"{PLATFORM['name']} {PLATFORM['version']} ready. Sentry={'ACTIVE' if _sentry_active else 'inactive'} PagerDuty={'configured' if obs.is_pagerduty_configured() else 'inactive'}")
+    logger.info(
+        f"{PLATFORM['name']} {PLATFORM['version']} ready. "
+        f"Sentry={'ACTIVE' if _sentry_active else 'inactive'} "
+        f"PagerDuty={'configured' if obs.is_pagerduty_configured() else 'inactive'} "
+        f"Prometheus={'multiproc' if is_multiproc() else 'single-process'}"
+    )
     yield
 
 

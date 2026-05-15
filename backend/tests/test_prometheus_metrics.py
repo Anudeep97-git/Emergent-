@@ -163,3 +163,58 @@ class TestErrorCounter:
         time.sleep(0.3)
         after = _counter_total(_get_metrics().text, ep, method="POST", status_class="5xx")
         assert after - before >= 1, f"5xx counter did not increase: before={before} after={after}"
+
+
+
+# ---------------------------------------------------------------------
+# Iteration 5: Prometheus multi-process support
+# ---------------------------------------------------------------------
+class TestMetricsInfoEndpoint:
+    """GET /api/metrics/info — single-process mode in current Emergent runtime."""
+
+    def test_info_endpoint_200_and_shape(self):
+        r = requests.get(f"{BASE_URL}/api/metrics/info", timeout=15)
+        assert r.status_code == 200, f"/api/metrics/info not 200: {r.status_code} {r.text}"
+        data = r.json()
+        # Shape contract
+        assert set(data.keys()) >= {"mode", "multiproc_dir", "pid"}
+        assert data["mode"] in ("single-process", "multiprocess")
+        assert isinstance(data["multiproc_dir"], str)
+        assert isinstance(data["pid"], str)
+        assert data["pid"].isdigit() and int(data["pid"]) > 0
+
+    def test_info_returns_single_process_in_emergent_runtime(self):
+        # Current supervisor config uses uvicorn --workers 1 (no PROMETHEUS_MULTIPROC_DIR)
+        r = requests.get(f"{BASE_URL}/api/metrics/info", timeout=15)
+        data = r.json()
+        assert data["mode"] == "single-process", f"expected single-process, got {data}"
+        assert data["multiproc_dir"] == "", f"multiproc_dir should be empty: {data}"
+
+    def test_info_unauthenticated(self):
+        # Same scrape pattern as /api/metrics/ — no Authorization required
+        r = requests.get(f"{BASE_URL}/api/metrics/info", timeout=15)
+        assert r.status_code == 200
+
+
+class TestMultiprocBootstrap:
+    """Static checks: bootstrap module exposes the required helpers, gauges declare modes."""
+
+    def test_bootstrap_module_exports(self):
+        import sys
+        sys.path.insert(0, "/app/backend")
+        from services import metrics_bootstrap as mb
+        assert callable(mb.is_multiproc)
+        assert callable(mb.prepare_multiproc_dir)
+        assert callable(mb.install_worker_death_hook)
+        # In current runtime (no env var), is_multiproc must be False
+        assert mb.is_multiproc() is False
+
+    def test_server_invokes_bootstrap_before_routers(self):
+        # Static source-level check
+        src = open("/app/backend/server.py").read()
+        i_prep = src.find("prepare_multiproc_dir()")
+        i_hook = src.find("install_worker_death_hook()")
+        i_routers = src.find("from routers import")
+        assert i_prep != -1 and i_hook != -1 and i_routers != -1
+        assert i_prep < i_routers, "prepare_multiproc_dir() must run BEFORE importing routers"
+        assert i_hook < i_routers, "install_worker_death_hook() must run BEFORE importing routers"
