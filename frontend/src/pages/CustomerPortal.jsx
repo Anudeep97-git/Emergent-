@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RiskBadge from "@/components/RiskBadge";
 import MLflowPanel from "@/components/MLflowPanel";
+import ObservabilityPanel from "@/components/ObservabilityPanel";
 import { useAuth } from "@/lib/auth";
 
 const FILTERS = ["ALL", "HIGH", "MEDIUM", "LOW"];
@@ -92,6 +93,9 @@ export default function CustomerPortalPage() {
 
             {/* MLflow drift + retrain panel (PRD §10.4) */}
             <MLflowPanel user={user} />
+
+            {/* Sentry + PagerDuty error-rate panel (PRD §10.4) */}
+            <ObservabilityPanel user={user} />
 
             {/* Filters */}
             <div className="flex items-center gap-3 flex-wrap">

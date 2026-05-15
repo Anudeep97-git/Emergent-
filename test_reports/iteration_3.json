@@ -1,0 +1,26 @@
+{
+  "summary": "Tested Sentry + PagerDuty observability (PRD §10.4) on top of v1.0.0 + MLflow tracking. All 15 new backend pytest cases for /api/observability/* PASS (stats shape, custom window, state.pagerduty_state, RBAC on /check /test-alert /test-resolve /simulate-error, no-op response shape, error_requests counter increments after simulated 500). Frontend Playwright confirms ObservabilityPanel renders on /portal with data-testids observability-panel/status/rate/config; admin sees observability-check-button + observability-test-alert; viewer correctly does NOT see those admin-only buttons; clicking Run Drift Check fires /api/observability/check and shows the 'PagerDuty triggered' sonner toast.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_observability.py",
+    "/app/test_reports/pytest/observability_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Graceful no-op verified: with SENTRY_DSN + PAGERDUTY_INTEGRATION_KEY empty, /api/observability/stats returns sentry_active=false, pagerduty_configured=false, and /test-alert returns {sent:false, skipped:true, reason:'PAGERDUTY_INTEGRATION_KEY not set'} as designed.",
+    "ErrorRateMiddleware records 500s correctly: POST /api/observability/simulate-error raises HTTPException(500) and the sliding-window counter increments by >=1 on the very next /stats call.",
+    "RBAC enforcement is consistent: /check allows admin+analyst (403 viewer); /test-alert, /test-resolve, /simulate-error are admin-only (403 for analyst + viewer).",
+    "Minor design observation (NOT a bug, no fix needed): in check_and_alert(), when exceeds_threshold=true and no key is configured, pagerduty_action is set to 'TRIGGERED' even though _send_pagerduty returned skipped=true, so current_incident_key stays None. This means subsequent /check calls keep returning 'TRIGGERED' rather than 'ALREADY_OPEN'. Acceptable for no-op mode but worth a comment in the service for future maintainers.",
+    "ObservabilityPanel: every required data-testid is present (observability-panel, observability-status, observability-rate, observability-config, observability-check-button, observability-test-alert, observability-test-resolve, observability-skeleton). Admin-only buttons correctly gated via `isAdmin = user?.role === 'admin'` conditional render — verified hidden for viewer.",
+    "Frontend toast feedback works: onCheck dispatches toast.warning('PagerDuty triggered') / toast.success / toast.info based on pagerduty_action returned by the API."
+  ],
+  "updated_files": ["/app/backend/tests/test_observability.py"],
+  "success_rate": {"backend": "100% (15/15 observability tests)", "frontend": "100% (admin + viewer flows)"},
+  "test_credentials": "admin@c1b.com/admin123, analyst@c1b.com/analyst123, viewer@c1b.com/viewer123 — all verified working.",
+  "seed_data_creation": "None. /api/observability/simulate-error called once during testing to validate counter increment.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "New backend test file /app/backend/tests/test_observability.py (15 tests). Observability endpoints under /api/observability/{stats,state,check,test-alert,test-resolve,simulate-error}. SENTRY_DSN and PAGERDUTY_INTEGRATION_KEY are intentionally empty in /app/backend/.env so sentry_active=false and pagerduty_configured=false; any test-alert / trigger returns sent=false skipped=true. Frontend ObservabilityPanel polls /state every 15s. Note that running the simulate-error test multiple times can push error_rate above 1% which will cause /check to return pagerduty_action='TRIGGERED' (no-op since PD key unset).",
+  "rca of the issue": "No issues found. Feature implementation matches PRD §10.4 and all 15 acceptance criteria in the review_request."
+}
