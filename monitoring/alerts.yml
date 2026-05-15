@@ -1,0 +1,44 @@
+groups:
+  - name: c1b-api
+    interval: 30s
+    rules:
+      - alert: C1B_API_P95_Above_500ms
+        expr: histogram_quantile(0.95, sum by (le) (rate(c1b_api_request_latency_seconds_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: c1b-sre
+        annotations:
+          summary: "C1B API p95 latency > 500ms"
+          description: "p95 latency over 5 min exceeded 500ms — investigate slow endpoints or model load."
+
+      - alert: C1B_API_Error_Rate_Above_1pct
+        expr: c1b_api_error_rate > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          team: c1b-sre
+          pager: true
+        annotations:
+          summary: "C1B API error rate > 1% (PRD §10.4)"
+          description: "Rolling 5-min 5xx error rate has exceeded 1%. PagerDuty will fire."
+
+      - alert: C1B_High_Risk_Share_Above_75pct
+        expr: c1b_risk_tier_pct{tier="high"} > c1b_risk_tier_high_threshold
+        for: 10m
+        labels:
+          severity: warning
+          team: c1b-risk
+        annotations:
+          summary: "C1B High Risk % > 75% (PRD §10.4 Grafana alert)"
+          description: "Portfolio risk distribution has drifted — HIGH tier exceeds 75% of book."
+
+      - alert: C1B_Model_AUC_Drift_Above_5pct
+        expr: c1b_model_auc_drift > 0.05
+        for: 15m
+        labels:
+          severity: critical
+          team: c1b-mlops
+        annotations:
+          summary: "C1B model AUC dropped > 5% from baseline"
+          description: "Auto-retrain should have been triggered via /api/mlflow/auto-check."

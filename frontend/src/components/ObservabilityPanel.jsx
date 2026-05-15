@@ -104,6 +104,16 @@ export default function ObservabilityPanel({ user }) {
                 <div className="flex items-center gap-2 flex-wrap" data-testid="observability-config">
                     {cfgBadge(stats.sentry_active, "Sentry")}
                     {cfgBadge(stats.pagerduty_configured, "PagerDuty")}
+                    <a
+                        href="/api/metrics/"
+                        target="_blank"
+                        rel="noreferrer"
+                        data-testid="observability-prometheus-link"
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 bg-c1b-accent/10 text-c1b-accent border border-c1b-accent/30 hover:bg-c1b-accent/20 transition"
+                    >
+                        <CheckCircle2 className="w-3 h-3" />
+                        Prometheus /metrics
+                    </a>
                     <div
                         className="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
                         style={{ backgroundColor: `${tint}1a`, color: tint, border: `1px solid ${tint}55` }}

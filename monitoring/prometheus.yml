@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# C1B Credit Risk Platform — Prometheus scrape configuration (PRD §10.4)
+scrape_configs:
+  - job_name: c1b-backend
+    metrics_path: /api/metrics/
+    scheme: http
+    static_configs:
+      - targets: ["c1b-backend:8001"]
+        labels:
+          service: c1b-backend
+          env: production
+
+rule_files:
+  - "alerts.yml"

@@ -22,7 +22,7 @@ from services import observability_service as obs  # noqa: E402
 _sentry_active = obs.init_sentry()
 
 from services.db import ensure_indexes  # noqa: E402
-from routers import auth, pipeline, customer, dashboard, agent, platform, mlflow as mlflow_router, observability  # noqa: E402
+from routers import auth, pipeline, customer, dashboard, agent, platform, mlflow as mlflow_router, observability, metrics  # noqa: E402
 from middleware.error_rate import ErrorRateMiddleware  # noqa: E402
 from config import PLATFORM  # noqa: E402
 
@@ -71,6 +71,7 @@ api_router.include_router(agent.router,     prefix="/agent",     tags=["agent"])
 api_router.include_router(platform.router,  prefix="/platform",  tags=["platform"])
 api_router.include_router(mlflow_router.router, prefix="/mlflow", tags=["mlflow"])
 api_router.include_router(observability.router, prefix="/observability", tags=["observability"])
+api_router.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
 
 app.include_router(api_router)
 

@@ -1,0 +1,28 @@
+{
+  "summary": "Tested Prometheus /metrics exporter (PRD §10.4) on top of v1.0.0 + MLflow + Sentry/PD. Created /app/backend/tests/test_prometheus_metrics.py with 11 pytest cases — all 11 PASS. Verified: GET /api/metrics/ returns 200 with content-type 'text/plain; version=0.0.4', no auth header required; emits all 4 metric families (c1b_api_request_latency_seconds histogram, c1b_api_error_rate gauge, c1b_risk_tier_pct/drift_pct gauges, c1b_model_roc_auc/auc_drift gauges); c1b_risk_tier_high_threshold = 0.75; risk-tier % sums to ~1.0; all 10 histogram buckets present (0.025..5.0 + +Inf); c1b_api_requests_total counter increments by 5 after 5 hits to /api/dashboard/summary; endpoint label normalization replaces customer_id C001 with '{customer_id}' (low cardinality); POST /api/observability/simulate-error increments status_class='5xx' counter by 1. Frontend: ObservabilityPanel on /portal correctly renders the 'Prometheus /metrics' badge with data-testid=observability-prometheus-link, href='/api/metrics/', target='_blank'.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": [
+    "/app/backend/tests/test_prometheus_metrics.py",
+    "/app/test_reports/pytest/prometheus_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Endpoint label normalization in metrics_service._normalise_endpoint() correctly replaces C001 -> {customer_id}, UUIDs -> {uuid}, numeric ids -> {id}. Verified no raw 'C001' appears in any metric label after hitting /api/customer/C001/profile — keeps Prometheus cardinality bounded.",
+    "Bucket list (0.025, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0, 2.0, 5.0) is well aligned with the PRD p95 < 300ms SLO — the 0.3 bucket sits exactly on the SLO boundary, which makes histogram_quantile(0.95, ...) precise around the alert threshold.",
+    "Dedicated CollectorRegistry isolates app metrics from prometheus_client's default global registry — clean choice that prevents cross-contamination if a future dep registers process/GC metrics.",
+    "Unauthenticated /api/metrics/ is correct Prometheus best practice; verified with no Authorization header. Code comment in routers/metrics.py explicitly notes 'lock down at network/VPC layer' which is the right operator guidance.",
+    "_refresh_gauges() uses a non-blocking lock and a broad try/except — safe under concurrent scrapes, but the silent except on the MLflow/data_service branch could mask real errors. Suggest logging at WARNING with the exception type so ops can spot regressions in derived gauges (drift_pct, model_auc_drift) staying flat.",
+    "Single uvicorn worker (--workers 1) means the in-process registry is consistent for scrapes — IMPORTANT: if the deployment ever scales to multiple workers/replicas, the histogram/counter state will fragment per process. Recommend documenting the prometheus_client multiprocess_mode setup before horizontal scaling.",
+    "ErrorRateMiddleware correctly records 5xx on raised exceptions (try/except wraps call_next) — verified simulate-error increments the 5xx counter exactly by 1.",
+    "ObservabilityPanel.jsx: the Prometheus badge uses a relative href '/api/metrics/' rather than ${REACT_APP_BACKEND_URL}. This works because the frontend is served from the same ingress, but it deviates from the convention used elsewhere in the app. Acceptable; flagging only for consistency awareness."
+  ],
+  "updated_files": ["/app/backend/tests/test_prometheus_metrics.py"],
+  "success_rate": {"backend": "100% (11/11 prometheus metrics tests)", "frontend": "100% (Prometheus badge href/target/label verified)"},
+  "test_credentials": "admin@c1b.com / admin123 — verified working. NOTE: /api/auth/login returns the JWT under key 'token' (not 'access_token').",
+  "seed_data_creation": "None. Tests hit /api/dashboard/summary (x5), /api/customer/C001/profile (x1), /api/observability/simulate-error (x1) to drive counter/histogram assertions.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "New backend test file /app/backend/tests/test_prometheus_metrics.py (11 tests, all green). The metrics endpoint is /api/metrics/ WITH trailing slash — without slash you get a 307 redirect. The endpoint is intentionally unauthenticated. uvicorn runs with --workers 1 --reload, so creating/editing files under /app/backend triggers a reload that wipes the in-process registry — keep that in mind when chaining tests. Login response key is 'token' (not access_token).",
+  "rca of the issue": "No issues found. Implementation matches PRD §10.4 visualization spec; all 12 acceptance criteria from the review_request pass."
+}
