@@ -48,6 +48,11 @@ spec:
         resources:
           requests: { cpu: "300m", memory: "512Mi" }
           limits:   { cpu: "1000m", memory: "2Gi" }
+      volumes:
+      - name: prom-multiproc
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
 ---
 apiVersion: v1
 kind: Service

@@ -97,6 +97,15 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 
 ## Feature additions log
 
+### 2026-02-15 — Prometheus Multi-Process Support (horizontal scaling) ✅
+- `services/metrics_bootstrap.py`: detects `PROMETHEUS_MULTIPROC_DIR`, creates dir, clears stale `.db` files at boot, registers `mark_process_dead(pid)` hook on `atexit` + `SIGTERM` + `SIGINT`.
+- `services/metrics_service.py`: every Gauge now declares an explicit `multiprocess_mode` — `livesum` for additive 5-min counters, `liveall` for per-tier dimensional gauges, `max` for slow-moving scalar state (AUC, threshold, drift). `render()` switches to `multiprocess.MultiProcessCollector` when the env var is set, falling back to the in-process registry on error.
+- `routers/metrics.py` adds `GET /api/metrics/info` returning `{ mode, multiproc_dir, pid }` for ops debugging.
+- `server.py`: bootstrap runs BEFORE any router import (required so metrics are registered in multiproc mode).
+- Deploy artifacts updated: `Dockerfile` switches to `gunicorn --workers ${WEB_CONCURRENCY:-4} -k uvicorn.workers.UvicornWorker` and exports `PROMETHEUS_MULTIPROC_DIR`. `k8s/backend-deployment.yaml` adds the env var, a Memory-backed `emptyDir` volume + matching `volumeMount`, and `WEB_CONCURRENCY=4`.
+- Single-process mode (current Emergent runtime) is unchanged — `PROMETHEUS_MULTIPROC_DIR` is left unset, all multiproc code paths are inert.
+- Testing: 16/16 backend pytest pass (11 prior + 5 new multiproc cases). Cross-process smoke test in `/tmp/test_multiproc.py` proves 3-worker counter aggregation (5+7=12 successes, 3 errors) merges via `MultiProcessCollector`.
+
 ### 2026-02-15 — Prometheus Exporter for Grafana (PRD §10.4) ✅
 - `services/metrics_service.py`: dedicated `CollectorRegistry`; emits:
   - `c1b_api_request_latency_seconds` histogram with PRD-aligned buckets (0.025…5.0s).
