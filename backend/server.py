@@ -18,7 +18,7 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / ".env")
 
 from services.db import ensure_indexes  # noqa: E402
-from routers import auth, pipeline, customer, dashboard, agent, platform  # noqa: E402
+from routers import auth, pipeline, customer, dashboard, agent, platform, mlflow as mlflow_router  # noqa: E402
 from config import PLATFORM  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -64,6 +64,7 @@ api_router.include_router(customer.router,  prefix="/customer",  tags=["customer
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(agent.router,     prefix="/agent",     tags=["agent"])
 api_router.include_router(platform.router,  prefix="/platform",  tags=["platform"])
+api_router.include_router(mlflow_router.router, prefix="/mlflow", tags=["mlflow"])
 
 app.include_router(api_router)
 

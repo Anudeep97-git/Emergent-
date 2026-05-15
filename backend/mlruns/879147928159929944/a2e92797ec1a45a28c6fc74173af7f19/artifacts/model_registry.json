@@ -1,0 +1,10 @@
+{
+  "model_name": "C1B_LightGBM_Champion",
+  "version": "v1.0.0",
+  "algorithm": "LightGBM",
+  "n_features": 53,
+  "roc_auc": 1.0,
+  "status": "PRODUCTION",
+  "model_hash": "807a747e6a887d4bb98e11fc12dbc98c",
+  "trained_at": "2026-05-15T18:45:21.429875+00:00"
+}

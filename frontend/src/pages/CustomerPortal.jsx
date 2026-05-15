@@ -6,6 +6,8 @@ import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RiskBadge from "@/components/RiskBadge";
+import MLflowPanel from "@/components/MLflowPanel";
+import { useAuth } from "@/lib/auth";
 
 const FILTERS = ["ALL", "HIGH", "MEDIUM", "LOW"];
 
@@ -28,6 +30,7 @@ const KPI = ({ icon: Icon, label, value, tint, idx }) => (
 );
 
 export default function CustomerPortalPage() {
+    const { user } = useAuth();
     const [customers, setCustomers] = useState([]);
     const [summary, setSummary] = useState(null);
     const [filter, setFilter] = useState("ALL");
@@ -86,6 +89,9 @@ export default function CustomerPortalPage() {
                     <KPI idx={4} icon={ArrowUpRight} label="Avg Risk Score" value={(summary.avg_risk_score * 100).toFixed(1) + "%"} tint="#0F172A" />
                 </div>
             )}
+
+            {/* MLflow drift + retrain panel (PRD §10.4) */}
+            <MLflowPanel user={user} />
 
             {/* Filters */}
             <div className="flex items-center gap-3 flex-wrap">

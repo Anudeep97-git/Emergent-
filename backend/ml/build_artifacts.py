@@ -15,6 +15,8 @@ import pandas as pd
 import joblib
 import lightgbm as lgb
 import xgboost as xgb
+import mlflow
+import mlflow.sklearn
 from sklearn.preprocessing import LabelEncoder
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,6 +29,12 @@ for p in (OUT, P2, P4):
 rng = np.random.default_rng(42)
 N_CUSTOMERS = 100
 MONTHS = 12
+
+# ---------- MLflow tracking setup ----------
+MLRUNS_DIR = ROOT / "mlruns"
+MLRUNS_DIR.mkdir(parents=True, exist_ok=True)
+mlflow.set_tracking_uri(f"file:{MLRUNS_DIR}")
+mlflow.set_experiment("c1b_credit_risk")
 
 # ---------- Raw 20-column schema (PRD §3.1.2) ----------
 regions = ["North", "South", "East", "West", "Central"]
@@ -301,5 +309,54 @@ batch["batch_run_at"] = pd.Timestamp.utcnow().isoformat()
 batch["eligible_expand"] = (batch["risk_label"] == "LOW").astype(int)
 batch.to_csv(P4 / "batch_scored_customers.csv", index=False)
 
+# ---------- MLflow: log run ----------
+run_tags = {
+    "model_name": "C1B_LightGBM_Champion",
+    "model_version": registry["version"],
+    "status": registry["status"],
+    "model_hash": model_hash,
+    "n_features": "53",
+    "trigger": os.environ.get("RETRAIN_TRIGGER", "manual"),
+}
+with mlflow.start_run(run_name=f"c1b-{pd.Timestamp.utcnow().strftime('%Y%m%d-%H%M%S')}", tags=run_tags) as run:
+    mlflow.log_params({
+        "algorithm": "LightGBM",
+        "n_estimators": 200,
+        "max_depth": 6,
+        "learning_rate": 0.1,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "class_weight": "balanced",
+        "n_features": 53,
+        "n_customers": N_CUSTOMERS,
+    })
+    mlflow.log_metrics({
+        "roc_auc": float(auc),
+        "low_threshold": float(low_t),
+        "high_threshold": float(high_t),
+        "high_risk_pct": float((action_df["risk_label"] == "HIGH").mean()),
+        "medium_risk_pct": float((action_df["risk_label"] == "MEDIUM").mean()),
+        "low_risk_pct": float((action_df["risk_label"] == "LOW").mean()),
+        "eligible_expand_pct": float((batch["eligible_expand"] == 1).mean()),
+    })
+    mlflow.log_artifact(str(P2 / "lightgbm_model.pkl"))
+    mlflow.log_artifact(str(P2 / "feature_columns.json"))
+    mlflow.log_artifact(str(P2 / "bucket_thresholds_v2.json"))
+    mlflow.log_artifact(str(P4 / "model_registry.json"))
+    mlflow.log_artifact(str(P4 / "batch_scored_customers.csv"))
+    mlflow_run_id = run.info.run_id
+
+# Persist last run pointer for the API to consume
+with open(OUT / "mlflow_latest_run.json", "w") as f:
+    json.dump({
+        "run_id": mlflow_run_id,
+        "roc_auc": float(auc),
+        "model_version": registry["version"],
+        "model_hash": model_hash,
+        "trained_at": registry["trained_at"],
+        "trigger": run_tags["trigger"],
+    }, f, indent=2)
+
 print(f"OK: 53 features, AUC={auc:.4f}, low_t={low_t:.4f}, high_t={high_t:.4f}, hash={model_hash}")
 print(f"Risk distribution: {action_df['risk_label'].value_counts().to_dict()}")
+print(f"MLflow run: {mlflow_run_id}")
