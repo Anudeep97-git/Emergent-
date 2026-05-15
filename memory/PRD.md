@@ -97,6 +97,20 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 
 ## Feature additions log
 
+### 2026-02-15 — Prometheus Exporter for Grafana (PRD §10.4) ✅
+- `services/metrics_service.py`: dedicated `CollectorRegistry`; emits:
+  - `c1b_api_request_latency_seconds` histogram with PRD-aligned buckets (0.025…5.0s).
+  - `c1b_api_requests_total` counter labelled by method/endpoint/status_class.
+  - `c1b_api_error_rate`, `c1b_api_total_requests_5m`, `c1b_api_error_requests_5m` gauges fed by the observability sliding window.
+  - `c1b_risk_tier_pct{tier}` and `c1b_risk_tier_drift_pct{tier}` gauges (current vs MLflow baseline).
+  - `c1b_model_roc_auc`, `c1b_model_auc_drift`, `c1b_risk_tier_high_threshold` (PRD §10.4 = 0.75).
+- Endpoint label normalisation collapses `C001/UUIDs/numeric ids` → `{customer_id}/{uuid}/{id}` to bound cardinality.
+- `routers/metrics.py` exposes `GET /api/metrics/` (unauthenticated per Prometheus best practice; protect at network/VPC layer in prod).
+- Middleware times every request + records latency.
+- Deliverables under `/app/monitoring/`: `prometheus.yml`, `alerts.yml` (4 rules: p95 > 500ms, error rate > 1%, high-risk > 75%, AUC drift > 5%), `grafana_dashboard.json` (8 panels), `README.md`.
+- UI: ObservabilityPanel gets a "Prometheus /metrics" link badge.
+- Testing: 11/11 pytest pass, 100% UI verified.
+
 ### 2026-02-15 — Sentry + PagerDuty Observability (PRD §10.4 final piece) ✅
 - `services/observability_service.py`: Sentry FastAPI integration (auto-captures unhandled exceptions + 5xx), in-memory sliding-window error-rate tracker (5000 events max), PagerDuty Events API v2 trigger / resolve with dedup_key.
 - `middleware/error_rate.py`: starlette middleware records every response status into the sliding window.

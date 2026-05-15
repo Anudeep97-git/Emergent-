@@ -4,6 +4,7 @@ Exposed at GET /api/metrics in Prometheus text format. Grafana derives p50/p95/p
 from the latency histogram via `histogram_quantile(0.95, ...)`.
 """
 import time
+import logging
 import threading
 from typing import Dict
 
@@ -11,6 +12,8 @@ import pandas as pd
 from prometheus_client import (
     CollectorRegistry, Histogram, Gauge, Counter, generate_latest, CONTENT_TYPE_LATEST,
 )
+
+logger = logging.getLogger("c1b.metrics")
 
 # Use a dedicated registry to avoid clashing with default global one
 REGISTRY = CollectorRegistry()
@@ -171,7 +174,7 @@ def _refresh_gauges():
             base_auc = float(base.get("roc_auc", cur_auc))
             model_roc_auc.set(cur_auc)
             model_auc_drift.set(max(base_auc - cur_auc, 0.0))
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Derived gauge refresh failed: %s: %s", type(e).__name__, e)
     finally:
         _refresh_lock.release()
