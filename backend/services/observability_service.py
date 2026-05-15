@@ -140,13 +140,21 @@ def trigger_incident(summary: str, details: Optional[Dict[str, Any]] = None, sev
         _pd_state["last_trigger_at"] = datetime.now(timezone.utc).isoformat()
         _pd_state["current_incident_key"] = dedup
         _pd_state["trigger_count"] += 1
+    elif out.get("skipped"):
+        # mark a "pseudo-open" incident in no-op mode so subsequent checks return ALREADY_OPEN
+        _pd_state["current_incident_key"] = dedup + "-noop"
     return out
 
 
 def resolve_incident(summary: str = "Error rate returned below threshold") -> Dict[str, Any]:
-    if not _pd_state.get("current_incident_key"):
+    open_key = _pd_state.get("current_incident_key")
+    if not open_key:
         return {"sent": False, "skipped": True, "reason": "no open incident"}
-    out = _send_pagerduty("resolve", summary, dedup_key=_pd_state["current_incident_key"])
+    # If incident is a no-op pseudo-key, just clear locally
+    if open_key.endswith("-noop"):
+        _pd_state["current_incident_key"] = None
+        return {"sent": False, "skipped": True, "reason": "no-op mode (no PD key)", "cleared_local": True}
+    out = _send_pagerduty("resolve", summary, dedup_key=open_key)
     if out.get("sent"):
         _pd_state["last_resolve_at"] = datetime.now(timezone.utc).isoformat()
         _pd_state["current_incident_key"] = None

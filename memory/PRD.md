@@ -97,6 +97,16 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 
 ## Feature additions log
 
+### 2026-02-15 — Sentry + PagerDuty Observability (PRD §10.4 final piece) ✅
+- `services/observability_service.py`: Sentry FastAPI integration (auto-captures unhandled exceptions + 5xx), in-memory sliding-window error-rate tracker (5000 events max), PagerDuty Events API v2 trigger / resolve with dedup_key.
+- `middleware/error_rate.py`: starlette middleware records every response status into the sliding window.
+- `routers/observability.py` exposes 6 endpoints: `/api/observability/{stats, state, check, test-alert, test-resolve, simulate-error}` with RBAC (admin-only for test-alert/test-resolve/simulate-error; admin+analyst for check).
+- Threshold: 1% error rate over 5-minute rolling window (configurable via env vars).
+- Graceful no-op when `SENTRY_DSN` / `PAGERDUTY_INTEGRATION_KEY` are unset — every call returns `{sent: false, skipped: true, reason: '...'}`.
+- State machine: trigger / already-open / resolve transitions correctly tracked even in no-op mode.
+- UI: `components/ObservabilityPanel.jsx` on `/portal` — drift/healthy badge, sentry+PD config badges, rate/window/req-count/threshold KPIs, admin-only Run Check + Fire Test Alert + Resolve Incident buttons. Polls every 15s.
+- Testing: 15/15 backend pytest pass, 100% UI flows verified.
+
 ### 2026-02-15 — MLflow Tracking + Auto-Retrain (PRD §10.4) ✅
 - File-based MLflow store at `/app/backend/mlruns/` — no extra server needed.
 - Every `build_artifacts.py` run logs params (LightGBM config), metrics (ROC-AUC, threshold values, risk distribution), and 5 artifacts (pkl, feature_columns.json, thresholds, registry, batch CSV).
