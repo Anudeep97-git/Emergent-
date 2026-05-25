@@ -149,6 +149,12 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 - **Frontend currency switch**: All `₹` symbols + `IndianRupee` icon removed across `CreditDecisionCard.jsx`, `CustomerDashboard.jsx`, `CustomerPortal.jsx`. Replaced with `$` and `DollarSign` icon. Dropped `/1000)k` shortening since USD values are in the $500-$1000 range (full-value formatting like `$1,000` reads better than `$1k`).
 - **Testing — Iteration 7 PASS**: 8/8 new pytest cases (`test_real_dataset_usd.py`), plus regression-safe (ml_service 4/4 + branding 6/6 still pass). Frontend e2e: DOM scan for `₹` (U+20B9) returned ZERO matches on `/portal` and `/customer/C001`; KPI/decision/spend-chart all render in USD.
 
+### 2026-02-16 — Transaction-Level Drill-Down (P3) ✅
+- **Backend**: Repurposed `GET /api/customer/transactions/{customer_id}` to source from the new `customer_transactions.csv` (751 real transactions). Added query params `page`, `limit`, `tx_type` (Purchase|Payment|Fee|Credit|Cash Advance|all), `q` (description search). New `/api/customer/transactions/{customer_id}/types` returns type counts + net total for filter pills.
+- **Schema change**: `TransactionRow` model rewritten to `{trans_date, post_date, transaction_type, description, amount_usd, reference_number}`. Old monthly-aggregate shape removed (no frontend consumer). Regression suite confirms no other code path broke.
+- **Frontend**: New `TransactionsTable` component on `/customer/{id}` below SpendChart — header shows count + net USD, filter pills with per-type counts (color-tinted), debounced (300ms) merchant-description search, paginated table (10 rows/page) with type badges (Purchase/Payment/Fee/Credit/Cash Advance icons), date, description + truncated ref, USD amount colored green for credits and ink for debits.
+- **Testing — Iteration 8 PASS**: 10/10 new pytest cases (`test_transactions_drill_down.py`) + 18/18 regression (ml_service 4, branding 6, real_dataset_usd 8). Frontend e2e validated full flow on C001 (8 tx), C002 (4 tx), C021 (14 tx with pagination).
+
 ## Next action items
 - Add an alerting webhook for `eligible_expand` notifications.
 - Add multi-tenancy + bank-of-banks support (PRD hints at future C-Series expansion).
