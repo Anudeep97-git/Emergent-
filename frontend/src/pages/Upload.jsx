@@ -40,7 +40,7 @@ export default function UploadPage() {
         try {
             const fd = new FormData();
             fd.append("file", file);
-            const tok = localStorage.getItem("c1b_token");
+            const tok = localStorage.getItem("prima_token") || localStorage.getItem("c1b_token");
             const r = await fetch(`${API_BASE}/pipeline/ingest`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${tok}` },
@@ -83,11 +83,11 @@ export default function UploadPage() {
     return (
         <div className="space-y-7">
             <div>
-                <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
-                <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-2">Prima Nova</div>
+                <h1 className="font-display text-4xl sm:text-5xl font-bold text-pn-primary tracking-tight">
                     Transaction Upload & Scoring
                 </h1>
-                <p className="text-c1b-muted mt-2 text-sm max-w-2xl">
+                <p className="text-pn-muted mt-2 text-sm max-w-2xl">
                     Drop a CSV / XLSX / JSON containing your customer transactions. The pipeline ingests, validates,
                     builds risk features, and produces a risk score with the top contributing factors.
                 </p>
@@ -102,15 +102,15 @@ export default function UploadPage() {
                 className="border-2 border-dashed rounded-2xl p-10 text-center transition"
                 data-testid="dragdrop-zone"
             >
-                <UploadIcon className="w-10 h-10 text-c1b-accent mx-auto mb-3" />
-                <div className="font-display text-xl font-bold text-c1b-primary">
+                <UploadIcon className="w-10 h-10 text-pn-accent mx-auto mb-3" />
+                <div className="font-display text-xl font-bold text-pn-primary">
                     {file ? file.name : "Drag & drop your transactions file"}
                 </div>
-                <div className="text-sm text-c1b-muted mt-1">Accepted: .csv, .xlsx, .json (max 50MB)</div>
+                <div className="text-sm text-pn-muted mt-1">Accepted: .csv, .xlsx, .json (max 50MB)</div>
                 <div className="mt-5 flex items-center justify-center gap-3">
                     <label htmlFor="fileSelect" className="cursor-pointer">
                         <input id="fileSelect" data-testid="file-input" type="file" className="hidden" accept=".csv,.xlsx,.json" onChange={onSelect} />
-                        <span className="inline-block px-4 py-2 rounded-xl bg-white border border-c1b-border text-sm font-medium hover:bg-c1b-surface transition">
+                        <span className="inline-block px-4 py-2 rounded-xl bg-white border border-pn-border text-sm font-medium hover:bg-pn-surface transition">
                             Browse file
                         </span>
                     </label>
@@ -118,7 +118,7 @@ export default function UploadPage() {
                         onClick={runIngest}
                         disabled={!file || busy}
                         data-testid="run-pipeline-button"
-                        className="bg-c1b-primary hover:bg-c1b-ink text-white px-5 hover:scale-[1.02] transition-all"
+                        className="bg-pn-primary hover:bg-pn-ink text-white px-5 hover:scale-[1.02] transition-all"
                     >
                         {busy ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FlaskConical className="w-4 h-4 mr-2" />}
                         Run pipeline
@@ -127,8 +127,8 @@ export default function UploadPage() {
             </motion.div>
 
             {/* Pipeline progress tracker */}
-            <div className="bg-c1b-card border border-c1b-border rounded-2xl p-6" data-testid="pipeline-progress">
-                <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-4">
+            <div className="bg-pn-card border border-pn-border rounded-2xl p-6" data-testid="pipeline-progress">
+                <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-4">
                     Pipeline Progress
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -151,9 +151,9 @@ export default function UploadPage() {
                                     <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${tint}22`, color: tint }}>
                                         {active ? <Loader2 className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
                                     </div>
-                                    <div className="font-semibold text-c1b-primary">{s.label}</div>
+                                    <div className="font-semibold text-pn-primary">{s.label}</div>
                                 </div>
-                                <div className="text-xs text-c1b-muted">{s.desc}</div>
+                                <div className="text-xs text-pn-muted">{s.desc}</div>
                             </motion.div>
                         );
                     })}
@@ -167,20 +167,20 @@ export default function UploadPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="bg-c1b-card border border-c1b-border rounded-2xl p-6"
+                        className="bg-pn-card border border-pn-border rounded-2xl p-6"
                         data-testid="validation-status"
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted">Validation</div>
-                                <div className="font-display text-xl font-bold text-c1b-primary">
+                                <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted">Validation</div>
+                                <div className="font-display text-xl font-bold text-pn-primary">
                                     {validation.is_valid ? "All schema checks passed" : `${validation.errors.length} errors`}
                                 </div>
                             </div>
                             {validation.is_valid ? (
-                                <CheckCircle2 className="w-7 h-7 text-c1b-success" />
+                                <CheckCircle2 className="w-7 h-7 text-pn-success" />
                             ) : (
-                                <XCircle className="w-7 h-7 text-c1b-danger" />
+                                <XCircle className="w-7 h-7 text-pn-danger" />
                             )}
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -208,11 +208,11 @@ export default function UploadPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-c1b-primary text-white rounded-2xl p-6 flex items-center justify-between"
+                    className="bg-pn-primary text-white rounded-2xl p-6 flex items-center justify-between"
                     data-testid="score-result-banner"
                 >
                     <div>
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-1">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-1">
                             Sample Score · {score.customer_id}
                         </div>
                         <div className="font-display text-2xl font-bold">
@@ -220,7 +220,7 @@ export default function UploadPage() {
                         </div>
                         <div className="text-xs text-slate-300 mt-1">Confidence {score.confidence} · {score.recommended_action}</div>
                     </div>
-                    <Button asChild className="bg-white text-c1b-primary hover:bg-slate-100 hover:scale-[1.02] transition-all">
+                    <Button asChild className="bg-white text-pn-primary hover:bg-slate-100 hover:scale-[1.02] transition-all">
                         <a href={`/customer/${score.customer_id}`} data-testid="score-view-customer-link">View Customer Dashboard →</a>
                     </Button>
                 </motion.div>

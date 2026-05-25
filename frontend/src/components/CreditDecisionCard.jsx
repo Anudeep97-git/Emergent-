@@ -18,10 +18,10 @@ const Delta = ({ from, to, suffix = "", money = false }) => {
             : (Number(v) * 100).toFixed(2) + "%";
     return (
         <div className="flex items-center gap-2">
-            <span className="text-c1b-muted text-sm">{fmt(from)}</span>
+            <span className="text-pn-muted text-sm">{fmt(from)}</span>
             <Icon className="w-4 h-4" style={{ color }} />
-            <span className="font-bold text-c1b-primary" style={{ color }}>{fmt(to)}</span>
-            {suffix && <span className="text-xs text-c1b-muted">{suffix}</span>}
+            <span className="font-bold text-pn-primary" style={{ color }}>{fmt(to)}</span>
+            {suffix && <span className="text-xs text-pn-muted">{suffix}</span>}
         </div>
     );
 };
@@ -35,15 +35,15 @@ export default function CreditDecisionCard({ decision }) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-c1b-card border border-c1b-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+            className="bg-pn-card border border-pn-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
             data-testid="credit-decision-card"
         >
             <div className="flex items-start justify-between mb-5">
                 <div>
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-1">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-1">
                         Credit Decision
                     </div>
-                    <div className="font-display text-2xl font-bold text-c1b-primary">
+                    <div className="font-display text-2xl font-bold text-pn-primary">
                         {a.verb} Credit
                     </div>
                 </div>
@@ -56,26 +56,26 @@ export default function CreditDecisionCard({ decision }) {
             </div>
 
             <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-xs uppercase tracking-wider text-c1b-muted">Credit Limit</div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-pn-surface">
+                    <div className="text-xs uppercase tracking-wider text-pn-muted">Credit Limit</div>
                     <Delta from={decision.current_limit} to={decision.recommended_limit} money />
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-xs uppercase tracking-wider text-c1b-muted">APR</div>
+                <div className="flex items-center justify-between p-3 rounded-xl bg-pn-surface">
+                    <div className="text-xs uppercase tracking-wider text-pn-muted">APR</div>
                     <Delta from={decision.current_apr} to={decision.recommended_apr} />
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-xs uppercase tracking-wider text-c1b-muted">Opportunity Rank</div>
-                    <div className="text-sm font-semibold text-c1b-primary">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-pn-surface">
+                    <div className="text-xs uppercase tracking-wider text-pn-muted">Opportunity Rank</div>
+                    <div className="text-sm font-semibold text-pn-primary">
                         #{decision.opportunity_rank} / 100 ·{" "}
-                        <span className="text-c1b-muted font-mono">
+                        <span className="text-pn-muted font-mono">
                             score {decision.opportunity_score?.toFixed(2)}
                         </span>
                     </div>
                 </div>
             </div>
 
-            <p className="mt-4 text-xs text-c1b-muted leading-relaxed">{a.desc}</p>
+            <p className="mt-4 text-xs text-pn-muted leading-relaxed">{a.desc}</p>
         </motion.div>
     );
 }

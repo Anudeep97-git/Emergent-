@@ -34,7 +34,7 @@ MONTHS = 12
 MLRUNS_DIR = ROOT / "mlruns"
 MLRUNS_DIR.mkdir(parents=True, exist_ok=True)
 mlflow.set_tracking_uri(f"file:{MLRUNS_DIR}")
-mlflow.set_experiment("c1b_credit_risk")
+mlflow.set_experiment("prima_nova_credit_risk")
 
 # ---------- Raw 20-column schema (PRD §3.1.2) ----------
 regions = ["North", "South", "East", "West", "Central"]

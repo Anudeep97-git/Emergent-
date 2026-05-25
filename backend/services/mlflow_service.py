@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MLRUNS_DIR = ROOT / "mlruns"
 LATEST_POINTER = PHASE_OUTPUTS / "mlflow_latest_run.json"
 BASELINE_FILE = PHASE_OUTPUTS / "mlflow_baseline.json"
-EXPERIMENT_NAME = "c1b_credit_risk"
+EXPERIMENT_NAME = "prima_nova_credit_risk"
 DRIFT_THRESHOLD = 0.05  # PRD §10.4: retrain if AUC drops > 5%
 
 mlflow.set_tracking_uri(f"file:{MLRUNS_DIR}")
@@ -32,7 +32,7 @@ def _client() -> MlflowClient:
 
 
 def list_runs(limit: int = 20) -> List[Dict[str, Any]]:
-    """List MLflow runs in the c1b_credit_risk experiment, newest first."""
+    """List MLflow runs in the prima_nova_credit_risk experiment, newest first."""
     client = _client()
     exp = client.get_experiment_by_name(EXPERIMENT_NAME)
     if not exp:

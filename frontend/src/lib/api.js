@@ -1,4 +1,5 @@
 import axios from "axios";
+import { storage } from "@/lib/storage";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API_BASE = `${BACKEND_URL}/api`;
@@ -9,7 +10,7 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((cfg) => {
-    const tok = localStorage.getItem("c1b_token");
+    const tok = storage.getToken();
     if (tok) cfg.headers.Authorization = `Bearer ${tok}`;
     return cfg;
 });
@@ -18,8 +19,7 @@ api.interceptors.response.use(
     (r) => r,
     (err) => {
         if (err?.response?.status === 401) {
-            localStorage.removeItem("c1b_token");
-            localStorage.removeItem("c1b_user");
+            storage.clear();
             if (!window.location.pathname.startsWith("/login")) {
                 window.location.href = "/login";
             }

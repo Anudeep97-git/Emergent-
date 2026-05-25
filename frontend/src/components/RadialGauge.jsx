@@ -44,12 +44,12 @@ export default function RadialGauge({ score = 0, label = "Risk", size = 200 }) {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4, duration: 0.4 }}
-                    className="font-display text-3xl font-bold tracking-tight text-c1b-primary"
+                    className="font-display text-3xl font-bold tracking-tight text-pn-primary"
                     data-testid="radial-gauge-value"
                 >
                     {(score * 100).toFixed(1)}%
                 </motion.div>
-                <div className="text-[10px] uppercase tracking-[0.22em] text-c1b-muted mt-0.5">{label}</div>
+                <div className="text-[10px] uppercase tracking-[0.22em] text-pn-muted mt-0.5">{label}</div>
             </div>
         </div>
     );

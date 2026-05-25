@@ -88,16 +88,16 @@ export default function ObservabilityPanel({ user }) {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-c1b-card border border-c1b-border rounded-2xl p-6"
+            className="bg-pn-card border border-pn-border rounded-2xl p-6"
             data-testid="observability-panel"
         >
             <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
                 <div>
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-1">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-1">
                         Observability · PRD §10.4
                     </div>
-                    <div className="font-display text-xl font-bold text-c1b-primary tracking-tight flex items-center gap-2">
-                        <ShieldAlert className="w-5 h-5 text-c1b-accent" />
+                    <div className="font-display text-xl font-bold text-pn-primary tracking-tight flex items-center gap-2">
+                        <ShieldAlert className="w-5 h-5 text-pn-accent" />
                         Error Rate & Alerting
                     </div>
                 </div>
@@ -109,7 +109,7 @@ export default function ObservabilityPanel({ user }) {
                         target="_blank"
                         rel="noreferrer"
                         data-testid="observability-prometheus-link"
-                        className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 bg-c1b-accent/10 text-c1b-accent border border-c1b-accent/30 hover:bg-c1b-accent/20 transition"
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 bg-pn-accent/10 text-pn-accent border border-pn-accent/30 hover:bg-pn-accent/20 transition"
                     >
                         <CheckCircle2 className="w-3 h-3" />
                         Prometheus /metrics
@@ -125,57 +125,57 @@ export default function ObservabilityPanel({ user }) {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-                <div className="p-3 rounded-xl bg-c1b-surface" data-testid="observability-rate">
-                    <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Error Rate</div>
+                <div className="p-3 rounded-xl bg-pn-surface" data-testid="observability-rate">
+                    <div className="text-[10px] uppercase tracking-wider text-pn-muted">Error Rate</div>
                     <div className="font-mono text-lg font-bold mt-1" style={{ color: tint }}>{rate.toFixed(3)}%</div>
                 </div>
-                <div className="p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Window</div>
-                    <div className="font-mono text-lg font-bold text-c1b-primary mt-1">{stats.window_min} min</div>
+                <div className="p-3 rounded-xl bg-pn-surface">
+                    <div className="text-[10px] uppercase tracking-wider text-pn-muted">Window</div>
+                    <div className="font-mono text-lg font-bold text-pn-primary mt-1">{stats.window_min} min</div>
                 </div>
-                <div className="p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Requests / Errors</div>
-                    <div className="font-mono text-lg font-bold text-c1b-primary mt-1">
-                        {stats.total_requests} <span className="text-c1b-muted">/</span>{" "}
-                        <span className="text-c1b-danger">{stats.error_requests}</span>
+                <div className="p-3 rounded-xl bg-pn-surface">
+                    <div className="text-[10px] uppercase tracking-wider text-pn-muted">Requests / Errors</div>
+                    <div className="font-mono text-lg font-bold text-pn-primary mt-1">
+                        {stats.total_requests} <span className="text-pn-muted">/</span>{" "}
+                        <span className="text-pn-danger">{stats.error_requests}</span>
                     </div>
                 </div>
-                <div className="p-3 rounded-xl bg-c1b-surface">
-                    <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Threshold</div>
-                    <div className="font-mono text-lg font-bold text-c1b-primary mt-1">{(stats.threshold * 100).toFixed(2)}%</div>
+                <div className="p-3 rounded-xl bg-pn-surface">
+                    <div className="text-[10px] uppercase tracking-wider text-pn-muted">Threshold</div>
+                    <div className="font-mono text-lg font-bold text-pn-primary mt-1">{(stats.threshold * 100).toFixed(2)}%</div>
                 </div>
             </div>
 
             {state && (state.trigger_count > 0 || state.resolve_count > 0) && (
-                <div className="p-3 rounded-xl bg-c1b-surface mb-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-pn-surface mb-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                     <div>
-                        <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Triggers</div>
-                        <div className="font-semibold text-c1b-danger">{state.trigger_count}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-pn-muted">Triggers</div>
+                        <div className="font-semibold text-pn-danger">{state.trigger_count}</div>
                     </div>
                     <div>
-                        <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Resolves</div>
-                        <div className="font-semibold text-c1b-success">{state.resolve_count}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-pn-muted">Resolves</div>
+                        <div className="font-semibold text-pn-success">{state.resolve_count}</div>
                     </div>
                     <div>
-                        <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Last Trigger</div>
-                        <div className="font-mono text-[11px] text-c1b-primary">
+                        <div className="text-[10px] uppercase tracking-wider text-pn-muted">Last Trigger</div>
+                        <div className="font-mono text-[11px] text-pn-primary">
                             {state.last_trigger_at ? new Date(state.last_trigger_at).toLocaleTimeString() : "—"}
                         </div>
                     </div>
                     <div>
-                        <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Open Incident</div>
-                        <div className="font-mono text-[11px] text-c1b-primary truncate">{state.current_incident_key || "none"}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-pn-muted">Open Incident</div>
+                        <div className="font-mono text-[11px] text-pn-primary truncate">{state.current_incident_key || "none"}</div>
                     </div>
                 </div>
             )}
 
             {!stats.sentry_active && !stats.pagerduty_configured && (
-                <p className="text-xs text-c1b-muted leading-relaxed mb-4">
-                    Sentry &amp; PagerDuty are <span className="font-semibold text-c1b-warning">no-op</span> until you set
-                    <code className="font-mono text-c1b-primary mx-1 px-1.5 py-0.5 rounded bg-c1b-surface">SENTRY_DSN</code>
+                <p className="text-xs text-pn-muted leading-relaxed mb-4">
+                    Sentry &amp; PagerDuty are <span className="font-semibold text-pn-warning">no-op</span> until you set
+                    <code className="font-mono text-pn-primary mx-1 px-1.5 py-0.5 rounded bg-pn-surface">SENTRY_DSN</code>
                     and
-                    <code className="font-mono text-c1b-primary mx-1 px-1.5 py-0.5 rounded bg-c1b-surface">PAGERDUTY_INTEGRATION_KEY</code>
-                    in <code className="font-mono text-c1b-primary mx-1 px-1.5 py-0.5 rounded bg-c1b-surface">/app/backend/.env</code>.
+                    <code className="font-mono text-pn-primary mx-1 px-1.5 py-0.5 rounded bg-pn-surface">PAGERDUTY_INTEGRATION_KEY</code>
+                    in <code className="font-mono text-pn-primary mx-1 px-1.5 py-0.5 rounded bg-pn-surface">/app/backend/.env</code>.
                 </p>
             )}
 
@@ -185,7 +185,7 @@ export default function ObservabilityPanel({ user }) {
                         onClick={onCheck}
                         disabled={busy}
                         data-testid="observability-check-button"
-                        className="bg-c1b-primary hover:bg-c1b-ink text-white hover:scale-[1.02] transition-all"
+                        className="bg-pn-primary hover:bg-pn-ink text-white hover:scale-[1.02] transition-all"
                     >
                         {busy ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Activity className="w-4 h-4 mr-2" />}
                         Run Drift Check
@@ -195,7 +195,7 @@ export default function ObservabilityPanel({ user }) {
                         disabled={busy}
                         variant="outline"
                         data-testid="observability-test-alert"
-                        className="border-c1b-danger/30 text-c1b-danger hover:bg-c1b-danger/10 hover:text-c1b-danger hover:scale-[1.02] transition-all"
+                        className="border-pn-danger/30 text-pn-danger hover:bg-pn-danger/10 hover:text-pn-danger hover:scale-[1.02] transition-all"
                     >
                         <Bell className="w-4 h-4 mr-2" /> Fire Test Alert
                     </Button>
@@ -205,7 +205,7 @@ export default function ObservabilityPanel({ user }) {
                             disabled={busy}
                             variant="outline"
                             data-testid="observability-test-resolve"
-                            className="border-c1b-success/30 text-c1b-success hover:bg-c1b-success/10 hover:text-c1b-success hover:scale-[1.02] transition-all"
+                            className="border-pn-success/30 text-pn-success hover:bg-pn-success/10 hover:text-pn-success hover:scale-[1.02] transition-all"
                         >
                             <Play className="w-4 h-4 mr-2 rotate-180" /> Resolve Incident
                         </Button>

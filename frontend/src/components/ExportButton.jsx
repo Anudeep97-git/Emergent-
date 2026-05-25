@@ -10,7 +10,7 @@ export default function ExportButton({ customerId }) {
     const handle = async () => {
         setBusy(true);
         try {
-            const tok = localStorage.getItem("c1b_token");
+            const tok = localStorage.getItem("prima_token") || localStorage.getItem("c1b_token");
             const r = await fetch(`${API_BASE}/dashboard/report/${customerId}`, {
                 headers: { Authorization: `Bearer ${tok}` },
             });
@@ -38,7 +38,7 @@ export default function ExportButton({ customerId }) {
             disabled={busy}
             variant="outline"
             data-testid="export-pdf-button"
-            className="border-c1b-accent/30 text-c1b-accent hover:bg-c1b-accent/10 hover:text-c1b-accent hover:scale-[1.02] transition-all"
+            className="border-pn-accent/30 text-pn-accent hover:bg-pn-accent/10 hover:text-pn-accent hover:scale-[1.02] transition-all"
         >
             {busy ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
             Export PDF

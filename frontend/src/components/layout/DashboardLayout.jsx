@@ -11,7 +11,7 @@ const NavItem = ({ to, icon: Icon, children }) => (
         className={({ isActive }) =>
             `group flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                    ? "bg-c1b-accent text-white shadow-lg shadow-c1b-accent/30"
+                    ? "bg-pn-accent text-white shadow-lg shadow-pn-accent/30"
                     : "text-slate-300 hover:bg-white/5 hover:text-white"
             }`
         }
@@ -31,17 +31,17 @@ export default function DashboardLayout() {
     };
 
     return (
-        <div className="min-h-screen flex bg-c1b-surface">
+        <div className="min-h-screen flex bg-pn-surface">
             {/* Sidebar */}
-            <aside className="w-64 shrink-0 bg-c1b-primary text-white flex flex-col">
+            <aside className="w-64 shrink-0 bg-pn-primary text-white flex flex-col">
                 <div className="px-6 py-6 border-b border-white/10">
                     <Link to="/portal" className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-c1b-accent flex items-center justify-center shadow-lg shadow-c1b-accent/40">
+                        <div className="w-9 h-9 rounded-xl bg-pn-accent flex items-center justify-center shadow-lg shadow-pn-accent/40">
                             <ShieldCheck className="w-5 h-5" />
                         </div>
                         <div>
                             <div className="font-display text-lg font-bold leading-none tracking-tight">Prima Nova</div>
-                            <div className="text-[10px] uppercase tracking-[0.18em] text-c1b-muted mt-1">
+                            <div className="text-[10px] uppercase tracking-[0.18em] text-pn-muted mt-1">
                                 Credit Risk
                             </div>
                         </div>
@@ -56,7 +56,7 @@ export default function DashboardLayout() {
                 <div className="p-3 border-t border-white/10">
                     <div className="px-3 py-2 rounded-lg bg-white/5 mb-2" data-testid="user-banner">
                         <div className="text-sm font-medium truncate">{user?.full_name || user?.email}</div>
-                        <div className="text-[11px] uppercase tracking-wider text-c1b-muted mt-0.5">
+                        <div className="text-[11px] uppercase tracking-wider text-pn-muted mt-0.5">
                             {user?.role}
                         </div>
                     </div>

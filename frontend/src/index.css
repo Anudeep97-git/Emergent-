@@ -39,7 +39,7 @@
         @apply border-border;
     }
     body {
-        @apply bg-c1b-surface text-c1b-ink font-sans antialiased;
+        @apply bg-pn-surface text-pn-ink font-sans antialiased;
         font-feature-settings: "ss01", "cv11";
     }
 }

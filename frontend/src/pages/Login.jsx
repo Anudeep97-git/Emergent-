@@ -31,9 +31,9 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-c1b-primary grid-bg overflow-hidden relative">
+        <div className="min-h-screen flex items-center justify-center bg-pn-primary grid-bg overflow-hidden relative">
             {/* Decorative glow */}
-            <div className="absolute top-1/4 left-1/4 w-[480px] h-[480px] rounded-full bg-c1b-accent/20 blur-[120px] pointer-events-none" />
+            <div className="absolute top-1/4 left-1/4 w-[480px] h-[480px] rounded-full bg-pn-accent/20 blur-[120px] pointer-events-none" />
             <div className="absolute bottom-1/4 right-1/4 w-[420px] h-[420px] rounded-full bg-emerald-500/15 blur-[140px] pointer-events-none" />
 
             <AnimatePresence mode="wait">
@@ -51,42 +51,42 @@ export default function LoginPage() {
                     data-testid="login-form"
                 >
                     <div className="flex items-center gap-3 mb-7">
-                        <div className="w-11 h-11 rounded-2xl bg-c1b-accent flex items-center justify-center shadow-lg shadow-c1b-accent/40">
+                        <div className="w-11 h-11 rounded-2xl bg-pn-accent flex items-center justify-center shadow-lg shadow-pn-accent/40">
                             <ShieldCheck className="w-6 h-6 text-white" />
                         </div>
                         <div>
-                            <div className="font-display text-2xl font-bold leading-none text-c1b-primary tracking-tight">
+                            <div className="font-display text-2xl font-bold leading-none text-pn-primary tracking-tight">
                                 Prima Nova
                             </div>
-                            <div className="text-xs uppercase tracking-[0.22em] text-c1b-muted mt-1.5">
+                            <div className="text-xs uppercase tracking-[0.22em] text-pn-muted mt-1.5">
                                 Credit Risk Console
                             </div>
                         </div>
                     </div>
 
-                    <h1 className="text-3xl font-display font-bold text-c1b-primary mb-1 tracking-tight">
+                    <h1 className="text-3xl font-display font-bold text-pn-primary mb-1 tracking-tight">
                         Welcome back
                     </h1>
-                    <p className="text-sm text-c1b-muted mb-6">
+                    <p className="text-sm text-pn-muted mb-6">
                         Sign in to your credit risk console.
                     </p>
 
                     <div className="space-y-4">
                         <div>
-                            <Label htmlFor="email" className="text-c1b-ink text-sm font-medium">Email</Label>
+                            <Label htmlFor="email" className="text-pn-ink text-sm font-medium">Email</Label>
                             <Input
                                 id="email"
                                 data-testid="login-email-input"
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1.5 h-11 bg-white/80 border-c1b-border"
+                                className="mt-1.5 h-11 bg-white/80 border-pn-border"
                                 placeholder="admin@primanova.com"
                                 required
                             />
                         </div>
                         <div>
-                            <Label htmlFor="password" className="text-c1b-ink text-sm font-medium">Password</Label>
+                            <Label htmlFor="password" className="text-pn-ink text-sm font-medium">Password</Label>
                             <div className="relative mt-1.5">
                                 <Input
                                     id="password"
@@ -94,14 +94,14 @@ export default function LoginPage() {
                                     type={showPw ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="h-11 bg-white/80 border-c1b-border pr-10"
+                                    className="h-11 bg-white/80 border-pn-border pr-10"
                                     required
                                 />
                                 <button
                                     type="button"
                                     data-testid="login-toggle-password"
                                     onClick={() => setShowPw((s) => !s)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-c1b-muted hover:text-c1b-primary transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-pn-muted hover:text-pn-primary transition-colors"
                                 >
                                     {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
@@ -113,12 +113,12 @@ export default function LoginPage() {
                         type="submit"
                         data-testid="login-submit-button"
                         disabled={loading}
-                        className="w-full mt-7 h-11 bg-c1b-primary hover:bg-c1b-ink text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:opacity-60"
+                        className="w-full mt-7 h-11 bg-pn-primary hover:bg-pn-ink text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg disabled:opacity-60"
                     >
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign in"}
                     </Button>
 
-                    <div className="mt-6 pt-5 border-t border-c1b-border/60 text-[11px] text-c1b-muted leading-relaxed">
+                    <div className="mt-6 pt-5 border-t border-pn-border/60 text-[11px] text-pn-muted leading-relaxed">
                         <div className="uppercase tracking-[0.18em] font-semibold mb-1.5">Demo Accounts</div>
                         admin@primanova.com / admin123 · analyst@primanova.com / analyst123 · customer@primanova.com / customer123
                     </div>

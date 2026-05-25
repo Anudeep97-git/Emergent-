@@ -18,29 +18,29 @@ export default function SystemHealthPanel({ user }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="bg-c1b-card border border-c1b-border rounded-2xl overflow-hidden"
+            className="bg-pn-card border border-pn-border rounded-2xl overflow-hidden"
             data-testid="system-health-panel"
         >
             <button
                 onClick={() => setOpen((v) => !v)}
                 data-testid="system-health-toggle"
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-c1b-surface transition group"
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-pn-surface transition group"
             >
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-c1b-accent/10 text-c1b-accent flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-pn-accent/10 text-pn-accent flex items-center justify-center">
                         <Settings2 className="w-4 h-4" />
                     </div>
                     <div className="text-left">
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted">
                             Operations (admin only)
                         </div>
-                        <div className="font-display text-base font-bold text-c1b-primary tracking-tight">
+                        <div className="font-display text-base font-bold text-pn-primary tracking-tight">
                             System Health &amp; Model Lifecycle
                         </div>
                     </div>
                 </div>
                 <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown className="w-5 h-5 text-c1b-muted group-hover:text-c1b-primary" />
+                    <ChevronDown className="w-5 h-5 text-pn-muted group-hover:text-pn-primary" />
                 </motion.div>
             </button>
 
@@ -52,9 +52,9 @@ export default function SystemHealthPanel({ user }) {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="border-t border-c1b-border"
+                        className="border-t border-pn-border"
                     >
-                        <div className="p-6 space-y-5 bg-c1b-surface/50">
+                        <div className="p-6 space-y-5 bg-pn-surface/50">
                             <MLflowPanel user={user} />
                             <ObservabilityPanel user={user} />
                         </div>

@@ -10,8 +10,8 @@ module.exports = {
                 sm: "calc(var(--radius) - 4px)",
             },
             colors: {
-                // C1B brand tokens (PRD §7.2) — used directly via bg-c1b-* / text-c1b-*
-                c1b: {
+                // C1B brand tokens (PRD §7.2) — used directly via bg-pn-* / text-pn-*
+                pn: {
                     primary: "#0F172A",
                     accent: "#6366F1",
                     "accent-soft": "#818CF8",

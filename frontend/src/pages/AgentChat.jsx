@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const SESSION_ID = `c1b-ui-${Math.random().toString(36).slice(2, 10)}`;
+const SESSION_ID = `pn-ui-${Math.random().toString(36).slice(2, 10)}`;
 
 const SUGGESTIONS = [
     "Assess risk for C031",
@@ -63,24 +63,24 @@ export default function AgentChatPage() {
         <div className="space-y-5">
             <div className="flex items-end justify-between flex-wrap gap-4">
                 <div>
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
-                    <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-2">Prima Nova</div>
+                    <h1 className="font-display text-4xl sm:text-5xl font-bold text-pn-primary tracking-tight">
                         Credit Risk Agent
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-xs text-c1b-muted uppercase tracking-wider">Customer</span>
+                    <span className="text-xs text-pn-muted uppercase tracking-wider">Customer</span>
                     <Input
                         data-testid="agent-customer-id"
                         value={customerId}
                         onChange={(e) => setCustomerId(e.target.value.toUpperCase())}
-                        className="w-28 h-10 bg-white border-c1b-border font-mono"
+                        className="w-28 h-10 bg-white border-pn-border font-mono"
                     />
                 </div>
             </div>
 
             {/* Chat panel */}
-            <div className="bg-c1b-card border border-c1b-border rounded-2xl flex flex-col h-[60vh]" data-testid="agent-chat-panel">
+            <div className="bg-pn-card border border-pn-border rounded-2xl flex flex-col h-[60vh]" data-testid="agent-chat-panel">
                 <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     <AnimatePresence>
                         {messages.map((m, i) => (
@@ -94,7 +94,7 @@ export default function AgentChatPage() {
                             >
                                 <div
                                     className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                                        m.role === "user" ? "bg-c1b-primary text-white" : "bg-c1b-accent/10 text-c1b-accent"
+                                        m.role === "user" ? "bg-pn-primary text-white" : "bg-pn-accent/10 text-pn-accent"
                                     }`}
                                 >
                                     {m.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
@@ -102,18 +102,18 @@ export default function AgentChatPage() {
                                 <div
                                     className={`max-w-[78%] px-4 py-3 rounded-2xl ${
                                         m.role === "user"
-                                            ? "bg-c1b-primary text-white"
-                                            : "bg-c1b-surface text-c1b-ink border border-c1b-border"
+                                            ? "bg-pn-primary text-white"
+                                            : "bg-pn-surface text-pn-ink border border-pn-border"
                                     }`}
                                 >
                                     <div className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</div>
                                     {m.flagged && (
-                                        <div className="mt-2 flex items-center gap-1.5 text-xs text-c1b-warning font-semibold">
+                                        <div className="mt-2 flex items-center gap-1.5 text-xs text-pn-warning font-semibold">
                                             <AlertTriangle className="w-3.5 h-3.5" /> Flagged for analyst review
                                         </div>
                                     )}
                                     {m.trace && m.trace.length > 0 && (
-                                        <div className="mt-2 text-[10px] uppercase tracking-wider text-c1b-muted">
+                                        <div className="mt-2 text-[10px] uppercase tracking-wider text-pn-muted">
                                             Tools called: {m.trace.map((t) => t.tool).join(" · ")}
                                         </div>
                                     )}
@@ -123,10 +123,10 @@ export default function AgentChatPage() {
                     </AnimatePresence>
                     {busy && (
                         <div className="flex gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-c1b-accent/10 text-c1b-accent flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-xl bg-pn-accent/10 text-pn-accent flex items-center justify-center">
                                 <Loader2 className="w-4 h-4 animate-spin" />
                             </div>
-                            <div className="px-4 py-3 rounded-2xl bg-c1b-surface border border-c1b-border text-sm text-c1b-muted">
+                            <div className="px-4 py-3 rounded-2xl bg-pn-surface border border-pn-border text-sm text-pn-muted">
                                 Calling tools and composing answer…
                             </div>
                         </div>
@@ -135,7 +135,7 @@ export default function AgentChatPage() {
                 </div>
 
                 {/* Input */}
-                <div className="p-4 border-t border-c1b-border">
+                <div className="p-4 border-t border-pn-border">
                     <div className="flex flex-wrap gap-2 mb-3">
                         {SUGGESTIONS.map((s) => (
                             <button
@@ -143,7 +143,7 @@ export default function AgentChatPage() {
                                 onClick={() => send(s)}
                                 disabled={busy}
                                 data-testid={`agent-suggest-${s.slice(0, 12)}`}
-                                className="text-xs px-3 py-1.5 rounded-full border border-c1b-border bg-white text-c1b-muted hover:text-c1b-accent hover:border-c1b-accent/40 transition"
+                                className="text-xs px-3 py-1.5 rounded-full border border-pn-border bg-white text-pn-muted hover:text-pn-accent hover:border-pn-accent/40 transition"
                             >
                                 <Sparkles className="w-3 h-3 inline -mt-0.5 mr-1" />
                                 {s}
@@ -159,13 +159,13 @@ export default function AgentChatPage() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Ask about a customer's risk, APR, limit decision…"
-                            className="bg-white border-c1b-border h-11"
+                            className="bg-white border-pn-border h-11"
                         />
                         <Button
                             type="submit"
                             disabled={busy || !input.trim()}
                             data-testid="agent-send-button"
-                            className="bg-c1b-accent hover:bg-c1b-accent-soft text-white h-11 px-5 hover:scale-[1.02] transition-all"
+                            className="bg-pn-accent hover:bg-pn-accent-soft text-white h-11 px-5 hover:scale-[1.02] transition-all"
                         >
                             <Send className="w-4 h-4" />
                         </Button>

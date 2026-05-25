@@ -15,16 +15,16 @@ const KPI = ({ icon: Icon, label, value, tint = "#6366F1", idx = 0 }) => (
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: idx * 0.08, duration: 0.4 }}
-        className="bg-c1b-card border border-c1b-border rounded-2xl p-5"
+        className="bg-pn-card border border-pn-border rounded-2xl p-5"
         data-testid={`kpi-${label.toLowerCase().replace(/\s/g, "-")}`}
     >
         <div className="flex items-center justify-between mb-3">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted">{label}</div>
+            <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted">{label}</div>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${tint}1a` }}>
                 <Icon className="w-4 h-4" style={{ color: tint }} />
             </div>
         </div>
-        <div className="font-display text-2xl font-bold text-c1b-primary tabular-nums">{value}</div>
+        <div className="font-display text-2xl font-bold text-pn-primary tabular-nums">{value}</div>
     </motion.div>
 );
 
@@ -76,18 +76,18 @@ export default function CustomerDashboardPage() {
                     <Link
                         to="/portal"
                         data-testid="back-to-portal"
-                        className="w-10 h-10 rounded-xl border border-c1b-border bg-white flex items-center justify-center hover:bg-c1b-surface transition"
+                        className="w-10 h-10 rounded-xl border border-pn-border bg-white flex items-center justify-center hover:bg-pn-surface transition"
                     >
-                        <ChevronLeft className="w-5 h-5 text-c1b-muted" />
+                        <ChevronLeft className="w-5 h-5 text-pn-muted" />
                     </Link>
                     <div>
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-1">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-1">
                             Customer Dashboard
                         </div>
-                        <h1 className="font-display text-3xl sm:text-4xl font-bold text-c1b-primary tracking-tight">
+                        <h1 className="font-display text-3xl sm:text-4xl font-bold text-pn-primary tracking-tight">
                             {customerId}
                         </h1>
-                        <div className="text-sm text-c1b-muted mt-1">
+                        <div className="text-sm text-pn-muted mt-1">
                             {profile.geography_region} · {profile.employment_status} · age {profile.age}
                         </div>
                     </div>
@@ -112,11 +112,11 @@ export default function CustomerDashboardPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="bg-c1b-card border border-c1b-border rounded-2xl p-6 flex flex-col items-center justify-center"
+                    className="bg-pn-card border border-pn-border rounded-2xl p-6 flex flex-col items-center justify-center"
                 >
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-4">Risk Score</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-4">Risk Score</div>
                     <RadialGauge score={decision.risk_score} />
-                    <div className="text-xs text-c1b-muted mt-3 font-mono">{decision.risk_label} · {decision.action}</div>
+                    <div className="text-xs text-pn-muted mt-3 font-mono">{decision.risk_label} · {decision.action}</div>
                 </motion.div>
                 <div className="lg:col-span-2">
                     <SHAPTable factors={decision.contributing_factors} />
@@ -130,13 +130,13 @@ export default function CustomerDashboardPage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.2 }}
-                className="bg-c1b-card border border-c1b-border rounded-2xl p-6"
+                className="bg-pn-card border border-pn-border rounded-2xl p-6"
                 data-testid="spend-chart"
             >
                 <div className="flex items-end justify-between mb-4">
                     <div>
-                        <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted">Spend Trajectory</div>
-                        <div className="font-display text-xl font-bold text-c1b-primary tracking-tight">
+                        <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted">Spend Trajectory</div>
+                        <div className="font-display text-xl font-bold text-pn-primary tracking-tight">
                             12-Month Purchases & Cash Advances
                         </div>
                     </div>
@@ -173,31 +173,31 @@ export default function CustomerDashboardPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3 }}
-                    className="bg-c1b-card border border-c1b-border rounded-2xl p-6"
+                    className="bg-pn-card border border-pn-border rounded-2xl p-6"
                     data-testid="pipeline-status-card"
                 >
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Pipeline Status</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-pn-muted mb-2">Pipeline Status</div>
                     <div className="flex items-center justify-between flex-wrap gap-3">
-                        <div className="font-display text-xl font-bold text-c1b-primary tracking-tight">
+                        <div className="font-display text-xl font-bold text-pn-primary tracking-tight">
                             Decision Pipeline
                         </div>
-                        <div className="text-xs text-c1b-muted">
-                            Last run: <span className="font-mono text-c1b-primary">{batch.batch_run_at}</span>
+                        <div className="text-xs text-pn-muted">
+                            Last run: <span className="font-mono text-pn-primary">{batch.batch_run_at}</span>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                        <div className="px-3 py-2.5 rounded-xl bg-c1b-surface">
-                            <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Batch Bucket</div>
-                            <div className="text-sm font-semibold text-c1b-primary">{decision.risk_label}</div>
+                        <div className="px-3 py-2.5 rounded-xl bg-pn-surface">
+                            <div className="text-[10px] uppercase tracking-wider text-pn-muted">Batch Bucket</div>
+                            <div className="text-sm font-semibold text-pn-primary">{decision.risk_label}</div>
                         </div>
-                        <div className="px-3 py-2.5 rounded-xl bg-c1b-surface">
-                            <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Expand Eligible</div>
+                        <div className="px-3 py-2.5 rounded-xl bg-pn-surface">
+                            <div className="text-[10px] uppercase tracking-wider text-pn-muted">Expand Eligible</div>
                             <div className="text-sm font-semibold" style={{ color: batch.eligible_expand ? "#10B981" : "#94A3B8" }}>
                                 {batch.eligible_expand ? "Yes" : "No"}
                             </div>
                         </div>
-                        <div className="px-3 py-2.5 rounded-xl bg-c1b-surface">
-                            <div className="text-[10px] uppercase tracking-wider text-c1b-muted">Notification</div>
+                        <div className="px-3 py-2.5 rounded-xl bg-pn-surface">
+                            <div className="text-[10px] uppercase tracking-wider text-pn-muted">Notification</div>
                             <div className="text-sm font-semibold" style={{ color: batch.notification_eligible ? "#6366F1" : "#94A3B8" }}>
                                 {batch.notification_eligible ? "Scheduled" : "Suppressed"}
                             </div>
