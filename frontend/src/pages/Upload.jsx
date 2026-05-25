@@ -9,7 +9,7 @@ const STEPS = [
     { key: "ingest",   label: "Ingest",   icon: UploadIcon, desc: "Upload + parse rows" },
     { key: "validate", label: "Validate", icon: FileCheck,  desc: "Schema + null checks" },
     { key: "features", label: "Features", icon: Cog,        desc: "Build 53-feature vector" },
-    { key: "score",    label: "Score",    icon: Sparkles,   desc: "Risk scoring & explanations" },
+    { key: "score",    label: "Risk Score",    icon: Sparkles,   desc: "Risk scoring & explanations" },
 ];
 
 export default function UploadPage() {
