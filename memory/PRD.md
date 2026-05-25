@@ -141,6 +141,14 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 - Auto-check endpoint: drift check + auto-retrain in one call.
 - Testing: 15/15 backend pytest pass, 100% UI flows verified.
 
+### 2026-02-16 — Real Bank Dataset Migration + USD Currency Switch ✅
+- **Data source swap**: Replaced synthetic 100-customer generator in `build_artifacts.py` with a real-Excel ingestor reading `/app/backend/data/real_dataset.xlsx` (Customer_Data sheet: 100 statement snapshots + Customer_Transactions sheet: 751 real transactions). The script maps real columns (previous_balance, payment_amount, other_credits → payment_amount, purchases_amount, cash_advances_amount, fees_charged + cash_advance_fee, interest_charged, new_balance, credit_limit, utilization_rate, bureau_score, delinquency_last_12m, geography_region, risk_bucket) to the existing 20-column raw schema.
+- **Derived missing fields**: `age` (deterministic from md5 hash of customer_id, 22-69), `income` (`18k + credit_limit*35*bureau_mult`, ~$30k-$80k band), `employment_status` (age + bureau bands). `default_flag` = `risk_bucket == 'High' OR (delinq_12m>=6 AND payment_on_time=0)`.
+- **12-month history synthesis**: Each customer's single real snapshot is extended to 12 monthly statements via random-walk drift around the snapshot; months that have real transactions in Customer_Transactions inject real `purchases_amount`/`cash_advances`/`payment` aggregates → SpendChart shows real per-month spend where available.
+- **Model retrained**: PrimaNova_LightGBM_Champion v1.1.0, 53 features, AUC=1.0 (clean target signal on 100-row sample), risk distribution exactly 70/15/15 (LOW/MEDIUM/HIGH). Registry now exposes `currency: USD`, `data_source: real_bank_dataset.xlsx`, `n_customers`, `n_transactions`.
+- **Frontend currency switch**: All `₹` symbols + `IndianRupee` icon removed across `CreditDecisionCard.jsx`, `CustomerDashboard.jsx`, `CustomerPortal.jsx`. Replaced with `$` and `DollarSign` icon. Dropped `/1000)k` shortening since USD values are in the $500-$1000 range (full-value formatting like `$1,000` reads better than `$1k`).
+- **Testing — Iteration 7 PASS**: 8/8 new pytest cases (`test_real_dataset_usd.py`), plus regression-safe (ml_service 4/4 + branding 6/6 still pass). Frontend e2e: DOM scan for `₹` (U+20B9) returned ZERO matches on `/portal` and `/customer/C001`; KPI/decision/spend-chart all render in USD.
+
 ## Next action items
 - Add an alerting webhook for `eligible_expand` notifications.
 - Add multi-tenancy + bank-of-banks support (PRD hints at future C-Series expansion).
