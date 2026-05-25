@@ -116,14 +116,12 @@ class CustomerProfile(BaseModel):
 
 
 class TransactionRow(BaseModel):
-    statement_month: str
-    purchases_amount: float
-    cash_advances: float
-    payment_amount: float
-    interest_charged: float
-    fees_charged: float
-    new_balance: float
-    utilization_rate: float
+    trans_date: str
+    post_date: str
+    transaction_type: str
+    description: str
+    amount_usd: float
+    reference_number: str
 
 
 class RiskHistoryEntry(BaseModel):

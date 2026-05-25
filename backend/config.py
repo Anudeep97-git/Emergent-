@@ -30,6 +30,7 @@ PHASE1_CSV = str(PHASE_OUTPUTS / "phase1_ready_for_phase2.csv")
 PHASE3_CSV = str(PHASE_OUTPUTS / "phase3_customer_action_plan.csv")
 PHASE4_BATCH_CSV = str(PHASE_OUTPUTS / "phase4_outputs" / "batch_scored_customers.csv")
 RAW_TRANSACTIONS_CSV = str(PHASE_OUTPUTS / "raw_transactions.csv")
+CUSTOMER_TRANSACTIONS_CSV = str(PHASE_OUTPUTS / "customer_transactions.csv")
 
 JWT_SECRET = os.environ.get("JWT_SECRET", "c1b_super_secret_key_change_in_prod_2026")
 JWT_ALGORITHM = "HS256"

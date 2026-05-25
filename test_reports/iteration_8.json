@@ -1,0 +1,39 @@
+{
+  "summary": "Iteration 8 validates the P3 transaction-level drill-down on the Customer Dashboard. Backend: created /app/backend/tests/test_transactions_drill_down.py (10 pytest cases) — ALL 10 PASS in ~6s. Regression suite: test_real_dataset_usd.py (8/8), test_ml_service.py (4/4), test_branding.py (6/6) — total 28/28 PASS — confirming TransactionRow schema change did not break any other consumer. Verified: GET /api/customer/transactions/C001?page=1&limit=5 returns envelope {customer_id, page, limit, total=8, items[5]} with row keys {trans_date, post_date, transaction_type, description, amount_usd, reference_number}; page=2 returns the remaining 3 rows, no overlap with page 1, total reflects un-paginated count; ?tx_type=Purchase returns Purchase-only rows; ?tx_type=all returns 8; ?q=CA (case-insensitive) filters description; unknown customer → total=0, items=[]; C050 has ≥4 transactions; /types endpoint returns {customer_id, total=8, types[{type,count}], total_amount_usd} and sum(counts)==total. Frontend (Playwright on REACT_APP_BACKEND_URL): admin login → /customer/C001 → TransactionsTable mounts below SpendChart; header reads exactly '8 transactions · net -$102.41'; filter pills render 'All 8', 'Purchase 7', 'Payment 1'; clicking tx-filter-purchase → 7 rows all Purchase; tx-filter-all resets to 8; search 'AMAZON' (300ms debounce) filters to exactly 1 row (AMAZON.COM 800-201-7575 WA); rows show date, color-tinted type badge, description + truncated ref, USD amount with Payment colored green (-$153.01) and Purchases ink-default; C001 pagination hidden (8<10); /customer/C021 (max, 14 txns) shows pagination — page1 prev disabled / next enabled (10 rows), page2 prev enabled / next disabled (4 rows); navigating to /customer/C002 reloads table to '4 transactions · net -$24.94' (All 4, Purchase 3, Payment 1). Screenshot at /app/test_reports/iteration8_c002.png confirms visual polish.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_transactions_drill_down.py",
+    "/app/test_reports/pytest/iteration8_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "data_service.get_customer_transactions correctly sorts by trans_date desc, applies tx_type then query filter, paginates via iloc, NaN-safe stringifies non-numeric fields and floats amount_usd. Clean implementation.",
+    "TransactionRow Pydantic schema in models/schemas.py was changed (rupee→USD field). Confirmed no other consumer references the old shape — grep across /app/backend/routers and /app/frontend/src returned no usage of the old monthly-aggregate fields.",
+    "Frontend TransactionsTable debounces 300ms on query — verified by 800ms wait observing 1 AMAZON row. setPage(1) reset effect on filter/query change is correct.",
+    "fmtUSD helper in TransactionsTable handles negative amounts and adds thousands separator with 2 decimals. Payment/Credit rows colored #10B981 (green) and others use ink #1E293B — visually distinct in screenshot.",
+    "Minor: pagination buttons appear only when total > limit (10). For C001 (total=8) the controls are correctly hidden; for C021 (total=14) they render and prev/next disable states track page boundaries accurately.",
+    "Minor nit (not blocking): reference_number is truncated to 12 chars via slice(0,12); description.trim() handles trailing whitespace from the CSV. No XSS risk because React escapes string children by default.",
+    "/types endpoint has no pagination and reads the full filtered slice once per customer — fine at 751 rows total but worth caching at module level if dataset grows. The @lru_cache on _real_tx already memoizes the DataFrame."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_transactions_drill_down.py"
+  ],
+  "success_rate": {
+    "backend": "100% (10/10 new transaction-drill-down + 18/18 regression = 28/28)",
+    "frontend": "100% (all 7 specified UI flows pass: mount, header, pills, filter, search, row formatting, pagination, navigation reload)"
+  },
+  "test_credentials": "admin@primanova.com / admin123 (verified). customer@primanova.com not used this iteration.",
+  "seed_data_creation": "None. Tests read live data from /app/backend/phase_outputs/customer_transactions.csv (751 rows).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Persistent regression file added: /app/backend/tests/test_transactions_drill_down.py (run with `pytest tests/test_transactions_drill_down.py -v`). Key invariants to assert against in future runs: C001 has exactly 8 transactions with net=-$102.41 (7 Purchase + 1 Payment); C002 has 4 (3 Purchase + 1 Payment, net=-$24.94); C021 has the dataset's max at 14 transactions (used for pagination tests — page1=10 rows, page2=4 rows); C050 has ≥4. Total dataset is 751 rows across 100 customers. The transaction types in the dataset are: Purchase, Payment, Credit, Cash Advance, Fee. TransactionRow schema (USD) keys: trans_date, post_date, transaction_type, description, amount_usd, reference_number. Use REACT_APP_BACKEND_URL from /app/frontend/.env (env var may not be exported in pytest subprocess — the test file already has a fallback reader for this).",
+  "rca of the issue": "No bugs found. P3 transaction drill-down implementation is complete and correct on both backend and frontend."
+}

@@ -9,6 +9,7 @@ import RiskBadge from "@/components/RiskBadge";
 import SHAPTable from "@/components/SHAPTable";
 import CreditDecisionCard from "@/components/CreditDecisionCard";
 import ExportButton from "@/components/ExportButton";
+import TransactionsTable from "@/components/TransactionsTable";
 
 const KPI = ({ icon: Icon, label, value, tint = "#6366F1", idx = 0 }) => (
     <motion.div
@@ -166,6 +167,9 @@ export default function CustomerDashboardPage() {
                     </ResponsiveContainer>
                 </div>
             </motion.div>
+
+            {/* Real transactions */}
+            <TransactionsTable customerId={customerId} />
 
             {/* Pipeline status */}
             {batch && (

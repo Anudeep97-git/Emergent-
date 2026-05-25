@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models.schemas import (
-    CustomerProfile, TransactionRow, RiskHistoryEntry,
+    CustomerProfile, RiskHistoryEntry,
     CustomerSummary, FullReport, CreditDecision,
 )
 from services.auth_service import get_current_user
@@ -26,10 +26,22 @@ async def profile(customer_id: str, user=Depends(get_current_user)):
     return CustomerProfile(full_name=f"Customer {customer_id}", **p)
 
 
-@router.get("/transactions/{customer_id}", response_model=List[TransactionRow])
-async def transactions(customer_id: str, page: int = Query(1, ge=1), limit: int = Query(20, ge=1, le=100),
-                       user=Depends(get_current_user)):
-    return data_service.get_customer_transactions(customer_id, page, limit)
+@router.get("/transactions/{customer_id}")
+async def transactions(
+    customer_id: str,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    tx_type: str = Query("all", description="Filter: all | Purchase | Payment | Fee | Credit | Cash Advance"),
+    q: str = Query("", description="Free-text search across description"),
+    user=Depends(get_current_user),
+):
+    return data_service.get_customer_transactions(customer_id, page, limit, tx_type=tx_type, query=q)
+
+
+@router.get("/transactions/{customer_id}/types")
+async def transaction_types(customer_id: str, user=Depends(get_current_user)):
+    """Distinct transaction types for the type-filter dropdown + total count."""
+    return data_service.get_customer_transaction_types(customer_id)
 
 
 @router.get("/risk-history/{customer_id}", response_model=List[RiskHistoryEntry])

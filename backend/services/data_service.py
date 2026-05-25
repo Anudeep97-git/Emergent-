@@ -7,6 +7,7 @@ import pandas as pd
 
 from config import (
     PHASE1_CSV, PHASE3_CSV, PHASE4_BATCH_CSV, REGISTRY_PATH, RAW_TRANSACTIONS_CSV,
+    CUSTOMER_TRANSACTIONS_CSV,
 )
 
 
@@ -31,6 +32,18 @@ def _raw() -> pd.DataFrame:
 
 
 @lru_cache(maxsize=1)
+def _real_tx() -> pd.DataFrame:
+    """Real customer-level transactions (description, type, USD amount)."""
+    try:
+        return pd.read_csv(CUSTOMER_TRANSACTIONS_CSV)
+    except FileNotFoundError:
+        return pd.DataFrame(columns=[
+            "customer_id", "reference_number", "trans_date", "post_date",
+            "transaction_type", "description", "amount_usd",
+        ])
+
+
+@lru_cache(maxsize=1)
 def registry() -> Dict[str, Any]:
     with open(REGISTRY_PATH) as f:
         return json.load(f)
@@ -42,6 +55,7 @@ def reload_caches():
     _phase3.cache_clear()
     _phase4.cache_clear()
     _raw.cache_clear()
+    _real_tx.cache_clear()
     registry.cache_clear()
 
 
@@ -95,17 +109,50 @@ def get_customer_profile(customer_id: str) -> Dict[str, Any]:
     }
 
 
-def get_customer_transactions(customer_id: str, page: int = 1, limit: int = 20) -> List[Dict[str, Any]]:
-    raw = _raw()
-    rows = raw[raw["customer_id"] == customer_id].sort_values("statement_month", ascending=False)
+def get_customer_transactions(
+    customer_id: str,
+    page: int = 1,
+    limit: int = 20,
+    tx_type: Optional[str] = None,
+    query: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Real transaction-level data sourced from `customer_transactions.csv` (USD)."""
+    df = _real_tx()
+    rows = df[df["customer_id"] == customer_id].copy()
+    if tx_type and tx_type.lower() != "all":
+        rows = rows[rows["transaction_type"].str.lower() == tx_type.lower()]
+    if query:
+        q = query.strip().lower()
+        rows = rows[rows["description"].astype(str).str.lower().str.contains(q, na=False)]
+    rows = rows.sort_values("trans_date", ascending=False)
+    total = int(len(rows))
     start = (page - 1) * limit
     end = start + limit
-    cols = ["statement_month", "purchases_amount", "cash_advances", "payment_amount",
-            "interest_charged", "fees_charged", "new_balance", "utilization_rate"]
-    out = rows.iloc[start:end][cols].to_dict(orient="records")
-    for r in out:
-        r["statement_month"] = str(r["statement_month"])
-    return out
+    cols = ["trans_date", "post_date", "transaction_type", "description", "amount_usd", "reference_number"]
+    items = rows.iloc[start:end][cols].to_dict(orient="records")
+    for r in items:
+        for k in ("trans_date", "post_date", "transaction_type", "description", "reference_number"):
+            r[k] = "" if pd.isna(r.get(k)) else str(r[k])
+        r["amount_usd"] = float(r.get("amount_usd", 0) or 0)
+    return {
+        "customer_id": customer_id,
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "items": items,
+    }
+
+
+def get_customer_transaction_types(customer_id: str) -> Dict[str, Any]:
+    df = _real_tx()
+    rows = df[df["customer_id"] == customer_id]
+    counts = rows["transaction_type"].value_counts().to_dict()
+    return {
+        "customer_id": customer_id,
+        "total": int(len(rows)),
+        "types": [{"type": str(k), "count": int(v)} for k, v in counts.items()],
+        "total_amount_usd": float(rows["amount_usd"].sum()) if len(rows) else 0.0,
+    }
 
 
 def get_spend_timeseries(customer_id: str) -> List[Dict[str, Any]]:
