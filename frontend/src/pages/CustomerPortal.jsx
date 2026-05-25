@@ -6,8 +6,7 @@ import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import RiskBadge from "@/components/RiskBadge";
-import MLflowPanel from "@/components/MLflowPanel";
-import ObservabilityPanel from "@/components/ObservabilityPanel";
+import SystemHealthPanel from "@/components/SystemHealthPanel";
 import { useAuth } from "@/lib/auth";
 
 const FILTERS = ["ALL", "HIGH", "MEDIUM", "LOW"];
@@ -62,22 +61,15 @@ export default function CustomerPortalPage() {
             <div className="flex items-end justify-between flex-wrap gap-4">
                 <div>
                     <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">
-                        Portfolio Overview · v1.0.0
+                        Prima Nova
                     </div>
                     <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
                         Customer Risk Portal
                     </h1>
                     <p className="text-c1b-muted mt-2 text-sm max-w-xl">
-                        100 customers scored nightly with the LightGBM Champion model. Click any card to drill into
-                        the full risk profile, SHAP drivers and credit decision.
+                        Click any customer card to drill into the full risk profile, key factors, and credit decision.
                     </p>
                 </div>
-                {summary && (
-                    <div className="text-right text-xs text-c1b-muted">
-                        <div>Last batch: <span className="font-mono text-c1b-primary">{new Date(summary.last_batch_run).toLocaleString()}</span></div>
-                        <div>Model: <span className="font-mono text-c1b-primary">{summary.model_version}</span> · ROC-AUC <span className="font-mono text-c1b-success">{summary.roc_auc.toFixed(4)}</span></div>
-                    </div>
-                )}
             </div>
 
             {/* KPIs */}
@@ -91,11 +83,8 @@ export default function CustomerPortalPage() {
                 </div>
             )}
 
-            {/* MLflow drift + retrain panel (PRD §10.4) */}
-            <MLflowPanel user={user} />
-
-            {/* Sentry + PagerDuty error-rate panel (PRD §10.4) */}
-            <ObservabilityPanel user={user} />
+            {/* Operations (admin-only, collapsed by default) */}
+            <SystemHealthPanel user={user} />
 
             {/* Filters */}
             <div className="flex items-center gap-3 flex-wrap">

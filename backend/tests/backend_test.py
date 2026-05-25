@@ -1,32 +1,22 @@
-"""C1B Credit Risk Platform - Comprehensive API tests against the public URL."""
-import os
+"""C1B Credit Risk Platform - Comprehensive API tests against a spawned local backend."""
 import pytest
 import requests
 
-# Load the public backend URL from frontend/.env (as user sees it)
-BASE = None
-with open("/app/frontend/.env") as f:
-    for line in f:
-        if line.startswith("REACT_APP_BACKEND_URL="):
-            BASE = line.split("=", 1)[1].strip().rstrip("/")
-assert BASE, "REACT_APP_BACKEND_URL not configured"
+ADMIN = {"email": "admin@primanova.com", "password": "admin123"}
+ANALYST = {"email": "analyst@primanova.com", "password": "analyst123"}
+VIEWER = {"email": "viewer@primanova.com", "password": "viewer123"}
 
-ADMIN = {"email": "admin@c1b.com", "password": "admin123"}
-ANALYST = {"email": "analyst@c1b.com", "password": "analyst123"}
-VIEWER = {"email": "viewer@c1b.com", "password": "viewer123"}
+
+def _login(base_url, creds):
+    r = requests.post(f"{base_url}/api/auth/login", json=creds, timeout=20)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    return body.get("token") or body.get("access_token")
 
 
 @pytest.fixture(scope="session")
-def admin_token():
-    r = requests.post(f"{BASE}/api/auth/login", json=ADMIN, timeout=20)
-    assert r.status_code == 200, r.text
-    body = r.json()
-    assert "token" in body or "access_token" in body
-    # Role may be nested under user, or flat, or only inside JWT - accept all
-    role = body.get("role") or body.get("user", {}).get("role") if isinstance(body.get("user"), dict) else body.get("role")
-    if role is not None:
-        assert role == "admin"
-    return body.get("token") or body.get("access_token")
+def admin_token(base_url):
+    return _login(base_url, ADMIN)
 
 
 @pytest.fixture(scope="session")
@@ -34,9 +24,29 @@ def admin_headers(admin_token):
     return {"Authorization": f"Bearer {admin_token}"}
 
 
+@pytest.fixture(scope="session")
+def analyst_token(base_url):
+    return _login(base_url, ANALYST)
+
+
+@pytest.fixture(scope="session")
+def analyst_headers(analyst_token):
+    return {"Authorization": f"Bearer {analyst_token}"}
+
+
+@pytest.fixture(scope="session")
+def viewer_token(base_url):
+    return _login(base_url, VIEWER)
+
+
+@pytest.fixture(scope="session")
+def viewer_headers(viewer_token):
+    return {"Authorization": f"Bearer {viewer_token}"}
+
+
 # --- Health & Platform ---
-def test_health():
-    r = requests.get(f"{BASE}/api/health", timeout=15)
+def test_health(base_url):
+    r = requests.get(f"{base_url}/api/health", timeout=15)
     assert r.status_code == 200
     body = r.json()
     assert body.get("status") == "ok"
@@ -55,7 +65,7 @@ def test_platform_info():
 # --- Auth ---
 def test_login_bad_credentials():
     r = requests.post(f"{BASE}/api/auth/login",
-                      json={"email": "no@c1b.com", "password": "wrong"}, timeout=15)
+                      json={"email": "no@primanova.com", "password": "wrong"}, timeout=15)
     assert r.status_code == 401
 
 

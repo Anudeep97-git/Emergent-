@@ -105,3 +105,23 @@ CMD ["sh", "-c", "rm -f $PROMETHEUS_MULTIPROC_DIR/*.db; \
 
 For dev / single-worker (current Emergent setup), leave `PROMETHEUS_MULTIPROC_DIR` unset —
 the exporter automatically falls back to the in-process `CollectorRegistry`.
+
+## Deploy regression guard (CI)
+
+`backend/tests/test_startup_log.py` boots the FastAPI app in a subprocess (both modes) and
+asserts the lifespan startup line contains the right `Prometheus=` marker. The CI workflow
+runs this on every push **and** after `kubectl apply`:
+
+```yaml
+- name: Post-deploy verification — startup log must say Prometheus=multiproc
+  run: |
+    kubectl rollout status deployment/c1b-backend --timeout=120s
+    POD=$(kubectl get pods -l app=c1b-backend -o jsonpath='{.items[0].metadata.name}')
+    kubectl logs "$POD" | grep -q "Prometheus=multiproc" || {
+      echo "::error::DEPLOY REGRESSION: PROMETHEUS_MULTIPROC_DIR missing in pod env"
+      exit 1
+    }
+```
+
+If anyone removes `PROMETHEUS_MULTIPROC_DIR` from the Dockerfile or the k8s manifest, the
+CI pipeline fails with a clear message before the change reaches production.

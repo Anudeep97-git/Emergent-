@@ -82,10 +82,10 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 
 | Role | Email | Password |
 |------|-------|----------|
-| admin | admin@c1b.com | admin123 |
-| analyst | analyst@c1b.com | analyst123 |
-| viewer | viewer@c1b.com | viewer123 |
-| customer | customer@c1b.com | customer123 |
+| admin | admin@primanova.com | admin123 |
+| analyst | analyst@primanova.com | analyst123 |
+| viewer | viewer@primanova.com | viewer123 |
+| customer | customer@primanova.com | customer123 |
 
 ## Prioritized backlog (P1/P2)
 

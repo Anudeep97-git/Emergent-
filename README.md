@@ -1,10 +1,9 @@
-# C1B Credit Risk Assessment Platform — v1.0.0
+# Prima Nova Credit Risk Assessment Platform — v1.0.0
 
-> **Full-Stack · Agent-Driven · API-First** | LightGBM Champion + XGBoost Ensemble + SHAP
+> **Full-Stack · Agent-Driven · API-First** | Predictive risk engine with explainable top-driver insights
 
-Production-ready credit-risk scoring platform for Credit One Bank. Implements all 10 sections
-of the C1B PRD: ML pipeline, FastAPI gateway, AI agent (Claude Sonnet 4.5), React dashboard,
-JWT/RBAC security, and Docker/Kubernetes deployment.
+Production-ready credit-risk scoring platform. Implements all 10 sections of the platform PRD:
+ML pipeline, FastAPI gateway, AI assistant, React dashboard, JWT/RBAC security, and Docker/Kubernetes deployment.
 
 ## Stack
 
@@ -12,8 +11,8 @@ JWT/RBAC security, and Docker/Kubernetes deployment.
 |-------|------|------|
 | React Frontend | React 18 + Tailwind + ShadCN/UI + Framer Motion + Recharts | 3000 |
 | FastAPI Gateway | Python 3.12, async, Pydantic v2 | 8001 / 8000 |
-| AI Agent | Claude Sonnet 4.5 via Emergent LLM Key (PRD spec'd Ollama llama3.2 — see notes) | — |
-| ML Engine | LightGBM + XGBoost + SHAP TreeExplainer (frozen .pkl) | — |
+| AI Assistant | Claude Sonnet 4.5 via Emergent LLM Key | — |
+| ML Engine | Predictive model (frozen .pkl) + tree-based explanations | — |
 | Database | MongoDB on Emergent / PostgreSQL via docker-compose | 27017 / 5432 |
 
 ## Quick start (Emergent runtime)
@@ -23,10 +22,10 @@ Frontend is on port 3000. Open the preview URL and log in:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@c1b.com | admin123 |
-| Analyst | analyst@c1b.com | analyst123 |
-| Viewer | viewer@c1b.com | viewer123 |
-| Customer | customer@c1b.com | customer123 |
+| Admin | admin@primanova.com | admin123 |
+| Analyst | analyst@primanova.com | analyst123 |
+| Viewer | viewer@primanova.com | viewer123 |
+| Customer | customer@primanova.com | customer123 |
 
 ## Local deployment (PRD §10 spec)
 

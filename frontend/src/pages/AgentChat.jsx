@@ -20,7 +20,7 @@ export default function AgentChatPage() {
         {
             role: "assistant",
             text:
-                "Hello — I am the C1B Credit Risk Agent (Claude Sonnet 4.5). I can call four ReAct tools: Phase1_FeatureProfile, Phase2_RiskPredict, Phase3_CreditAction, Phase4_PipelineStatus. Ask me about any customer (C001 – C100).",
+                "Hi — I'm your credit risk assistant. Ask me about any customer's risk, recommended credit limit, or APR change (customers C001 – C100).",
         },
     ]);
     const [customerId, setCustomerId] = useState("C001");
@@ -63,7 +63,7 @@ export default function AgentChatPage() {
         <div className="space-y-5">
             <div className="flex items-end justify-between flex-wrap gap-4">
                 <div>
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">AI Agent · ReAct + Tools</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
                     <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
                         Credit Risk Co-Pilot
                     </h1>

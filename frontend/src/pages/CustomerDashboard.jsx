@@ -179,7 +179,7 @@ export default function CustomerDashboardPage() {
                     <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Pipeline Status</div>
                     <div className="flex items-center justify-between flex-wrap gap-3">
                         <div className="font-display text-xl font-bold text-c1b-primary tracking-tight">
-                            Phase 4 · Batch Scoring
+                            Decision Pipeline
                         </div>
                         <div className="text-xs text-c1b-muted">
                             Last run: <span className="font-mono text-c1b-primary">{batch.batch_run_at}</span>

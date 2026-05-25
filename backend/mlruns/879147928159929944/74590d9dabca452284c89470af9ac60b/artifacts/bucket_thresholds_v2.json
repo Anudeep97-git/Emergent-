@@ -1,0 +1,6 @@
+{
+  "lgbm_low_upper": 0.09999539081302639,
+  "lgbm_medium_upper": 0.9411334725500669,
+  "method": "percentile_v2",
+  "notes": "21st/31st percentile recalibration per notebook Step 9"
+}

@@ -36,12 +36,12 @@ export default function RiskResultsPage() {
         <div className="space-y-7">
             <div className="flex items-end justify-between flex-wrap gap-4">
                 <div>
-                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Phase 2 Risk Output</div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
                     <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
                         Risk Results
                     </h1>
                     <p className="text-c1b-muted mt-2 text-sm max-w-xl">
-                        LightGBM Champion risk score with SHAP TreeExplainer top-5 contributing features.
+                        Customer risk score with the top contributing factors driving the decision.
                     </p>
                 </div>
                 <div className="flex items-center gap-2">

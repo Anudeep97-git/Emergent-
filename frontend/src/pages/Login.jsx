@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 export default function LoginPage() {
     const { user, login, loading } = useAuth();
     const navigate = useNavigate();
-    const [email, setEmail] = useState("admin@c1b.com");
+    const [email, setEmail] = useState("admin@primanova.com");
     const [password, setPassword] = useState("admin123");
     const [showPw, setShowPw] = useState(false);
     const [shake, setShake] = useState(0);
@@ -56,10 +56,10 @@ export default function LoginPage() {
                         </div>
                         <div>
                             <div className="font-display text-2xl font-bold leading-none text-c1b-primary tracking-tight">
-                                C1B Platform
+                                Prima Nova
                             </div>
                             <div className="text-xs uppercase tracking-[0.22em] text-c1b-muted mt-1.5">
-                                Credit Risk · v1.0.0
+                                Credit Risk Console
                             </div>
                         </div>
                     </div>
@@ -68,7 +68,7 @@ export default function LoginPage() {
                         Welcome back
                     </h1>
                     <p className="text-sm text-c1b-muted mb-6">
-                        Sign in to the LightGBM + XGBoost risk console.
+                        Sign in to your credit risk console.
                     </p>
 
                     <div className="space-y-4">
@@ -81,7 +81,7 @@ export default function LoginPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="mt-1.5 h-11 bg-white/80 border-c1b-border"
-                                placeholder="admin@c1b.com"
+                                placeholder="admin@primanova.com"
                                 required
                             />
                         </div>
@@ -120,7 +120,7 @@ export default function LoginPage() {
 
                     <div className="mt-6 pt-5 border-t border-c1b-border/60 text-[11px] text-c1b-muted leading-relaxed">
                         <div className="uppercase tracking-[0.18em] font-semibold mb-1.5">Demo Accounts</div>
-                        admin@c1b.com / admin123 · analyst@c1b.com / analyst123 · customer@c1b.com / customer123
+                        admin@primanova.com / admin123 · analyst@primanova.com / analyst123 · customer@primanova.com / customer123
                     </div>
                 </motion.form>
             </AnimatePresence>

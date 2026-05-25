@@ -40,9 +40,9 @@ export default function DashboardLayout() {
                             <ShieldCheck className="w-5 h-5" />
                         </div>
                         <div>
-                            <div className="font-display text-lg font-bold leading-none tracking-tight">C1B</div>
+                            <div className="font-display text-lg font-bold leading-none tracking-tight">Prima Nova</div>
                             <div className="text-[10px] uppercase tracking-[0.18em] text-c1b-muted mt-1">
-                                Risk Platform
+                                Credit Risk
                             </div>
                         </div>
                     </Link>

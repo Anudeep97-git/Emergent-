@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
+import { featureLabel } from "@/lib/labels";
 
-/** Top-5 SHAP contributing factors with staggered reveal (0.1s/row). */
+/** Top-5 contributing factors with staggered reveal (0.1s/row). */
 export default function SHAPTable({ factors = {} }) {
     const rows = Object.entries(factors).slice(0, 5);
     const max = Math.max(...rows.map(([, v]) => v), 0.0001);
@@ -8,8 +9,8 @@ export default function SHAPTable({ factors = {} }) {
     return (
         <div className="space-y-2" data-testid="shap-table">
             <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-c1b-muted">
-                <span>Top SHAP Drivers</span>
-                <span>|Δ| Importance</span>
+                <span>Top Risk Drivers</span>
+                <span>Impact</span>
             </div>
             <div className="border border-c1b-border rounded-2xl bg-white overflow-hidden">
                 {rows.map(([feat, val], i) => (
@@ -24,7 +25,7 @@ export default function SHAPTable({ factors = {} }) {
                         <div className="w-5 h-5 rounded-md bg-c1b-primary text-white text-[10px] font-bold flex items-center justify-center">
                             {i + 1}
                         </div>
-                        <div className="font-mono text-xs text-c1b-ink flex-1 truncate">{feat}</div>
+                        <div className="text-sm text-c1b-ink flex-1 truncate">{featureLabel(feat)}</div>
                         <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
@@ -39,7 +40,7 @@ export default function SHAPTable({ factors = {} }) {
                     </motion.div>
                 ))}
                 {rows.length === 0 && (
-                    <div className="p-6 text-center text-sm text-c1b-muted">No SHAP factors available.</div>
+                    <div className="p-6 text-center text-sm text-c1b-muted">No key factors available.</div>
                 )}
             </div>
         </div>

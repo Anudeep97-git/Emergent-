@@ -6,11 +6,11 @@ ROOT_DIR = Path(__file__).resolve().parent
 PHASE_OUTPUTS = ROOT_DIR / "phase_outputs"
 
 PLATFORM = {
-    "name": "C1B Credit Risk Assessment Platform",
+    "name": "Prima Nova",
     "version": "v1.0.0",
-    "model_engine": "LightGBM Champion + XGBoost Ensemble",
+    "model_engine": "Predictive Model",
     "architecture": "Full-Stack · Agent-Driven · API-First",
-    "target_org": "Credit One Bank",
+    "target_org": "Credit Risk Console",
 }
 
 SUCCESS_METRICS = {

@@ -4,21 +4,24 @@ Validates content-type, all expected metric families, histogram buckets,
 counter increments after generating traffic, endpoint label normalization
 (C001 -> {customer_id}), and 5xx counter increment after simulate-error.
 """
-import os
 import re
 import time
 import pytest
 import requests
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://ml-credit-pipeline.preview.emergentagent.com").rstrip("/")
-METRICS_URL = f"{BASE_URL}/api/metrics/"
-LOGIN_URL = f"{BASE_URL}/api/auth/login"
+
+def _metrics_url(base_url):
+    return f"{base_url}/api/metrics/"
+
+
+def _login_url(base_url):
+    return f"{base_url}/api/auth/login"
 
 
 # ---------- fixtures ----------
 @pytest.fixture(scope="module")
-def admin_token():
-    r = requests.post(LOGIN_URL, json={"email": "admin@c1b.com", "password": "admin123"}, timeout=15)
+def admin_token(base_url):
+    r = requests.post(_login_url(base_url), json={"email": "admin@primanova.com", "password": "admin123"}, timeout=15)
     assert r.status_code == 200, f"admin login failed: {r.status_code} {r.text}"
     data = r.json()
     return data.get("token") or data.get("access_token")
@@ -29,8 +32,8 @@ def admin_headers(admin_token):
     return {"Authorization": f"Bearer {admin_token}"}
 
 
-def _get_metrics():
-    r = requests.get(METRICS_URL, timeout=15)
+def _get_metrics(base_url):
+    r = requests.get(_metrics_url(base_url), timeout=15)
     assert r.status_code == 200, f"metrics endpoint not 200: {r.status_code}"
     return r
 

@@ -1,41 +1,33 @@
 """MLflow tracking + drift + retrain RBAC tests (PRD §10.4)."""
-import os
 import time
 import pytest
 import requests
 
-BASE = None
-with open("/app/frontend/.env") as f:
-    for line in f:
-        if line.startswith("REACT_APP_BACKEND_URL="):
-            BASE = line.split("=", 1)[1].strip().rstrip("/")
-assert BASE
-
-ADMIN = {"email": "admin@c1b.com", "password": "admin123"}
-ANALYST = {"email": "analyst@c1b.com", "password": "analyst123"}
-VIEWER = {"email": "viewer@c1b.com", "password": "viewer123"}
+ADMIN = {"email": "admin@primanova.com", "password": "admin123"}
+ANALYST = {"email": "analyst@primanova.com", "password": "analyst123"}
+VIEWER = {"email": "viewer@primanova.com", "password": "viewer123"}
 
 
-def _login(creds):
-    r = requests.post(f"{BASE}/api/auth/login", json=creds, timeout=20)
+def _login(base_url, creds):
+    r = requests.post(f"{base_url}/api/auth/login", json=creds, timeout=20)
     assert r.status_code == 200, r.text
     body = r.json()
     return body.get("token") or body.get("access_token")
 
 
 @pytest.fixture(scope="session")
-def admin_h():
-    return {"Authorization": f"Bearer {_login(ADMIN)}"}
+def admin_h(base_url):
+    return {"Authorization": f"Bearer {_login(base_url, ADMIN)}"}
 
 
 @pytest.fixture(scope="session")
-def analyst_h():
-    return {"Authorization": f"Bearer {_login(ANALYST)}"}
+def analyst_h(base_url):
+    return {"Authorization": f"Bearer {_login(base_url, ANALYST)}"}
 
 
 @pytest.fixture(scope="session")
-def viewer_h():
-    return {"Authorization": f"Bearer {_login(VIEWER)}"}
+def viewer_h(base_url):
+    return {"Authorization": f"Bearer {_login(base_url, VIEWER)}"}
 
 
 # --- READ endpoints (auth required) ---

@@ -9,7 +9,7 @@ const STEPS = [
     { key: "ingest",   label: "Ingest",   icon: UploadIcon, desc: "Upload + parse rows" },
     { key: "validate", label: "Validate", icon: FileCheck,  desc: "Schema + null checks" },
     { key: "features", label: "Features", icon: Cog,        desc: "Build 53-feature vector" },
-    { key: "score",    label: "Score",    icon: Sparkles,   desc: "LightGBM + SHAP" },
+    { key: "score",    label: "Score",    icon: Sparkles,   desc: "Risk scoring & explanations" },
 ];
 
 export default function UploadPage() {
@@ -83,13 +83,13 @@ export default function UploadPage() {
     return (
         <div className="space-y-7">
             <div>
-                <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Phase 1 → 4 Pipeline</div>
+                <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
                 <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
                     Transaction Upload & Scoring
                 </h1>
                 <p className="text-c1b-muted mt-2 text-sm max-w-2xl">
-                    Drop a CSV / XLSX / JSON containing the 20-column raw schema. The pipeline ingests, validates,
-                    feature-engineers, and scores against the LightGBM Champion model with SHAP top-5 explanations.
+                    Drop a CSV / XLSX / JSON containing your customer transactions. The pipeline ingests, validates,
+                    builds risk features, and produces a risk score with the top contributing factors.
                 </p>
             </div>
 
