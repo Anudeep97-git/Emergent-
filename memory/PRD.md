@@ -145,3 +145,15 @@ All 17+ endpoints implemented and protected by `Depends(get_current_user)`:
 - Add an alerting webhook for `eligible_expand` notifications.
 - Add multi-tenancy + bank-of-banks support (PRD hints at future C-Series expansion).
 - Add Prometheus exporter (`/metrics`) for API p95 and request counts.
+
+### 2026-02-16 — Tenant-Aware Branding (white-label) Frontend Integration ✅
+- Frontend now wraps the React app with `BrandingProvider` (`/app/frontend/src/lib/branding.jsx`) which fetches `/api/platform/branding` on boot and applies the response as CSS variables on `:root`.
+- Tailwind tokens `pn.primary/accent/success/warning/danger` rewritten as `rgb(var(--pn-*) / <alpha-value>)` so existing alpha-modifier classes (e.g. `bg-pn-accent/30`, `shadow-pn-accent/40`) continue to work with dynamic colors.
+- Branding context converts hex → RGB triplet and updates `--pn-primary/accent/success/warning/danger` at runtime. Defaults seeded in `index.css :root` for first-paint fidelity.
+- Admin-only route `/admin/branding` (`pages/AdminBranding.jsx`) with identity fields (app name, tagline, logo initials, support email), 5 color pickers with hex inputs, live preview panel reflecting unsaved state, Save (PUT) and Reset (POST → defaults) actions.
+- Sidebar (`DashboardLayout`) and Login page now consume `useBranding()` — both display dynamic logo initials, app name, tagline. Admin sees an extra `Branding` nav item; non-admins do not.
+- `App.js` adds `RequireAdmin` outlet guard — direct navigation to `/admin/branding` by non-admins redirects to `/portal`.
+- Testing — Iteration 6 PASS:
+  - Backend: 6 new pytest cases in `/app/backend/tests/test_branding.py` (GET unauth, PUT no-auth=401/403, customer=403, admin=200+persistence, POST reset customer=403/admin=200) — all pass in 2.96s.
+  - Frontend: 10/10 e2e flows verified — login renders dynamic brand, admin nav visible, color picker updates persist + apply to sidebar accent at runtime (verified `--pn-accent` CSS var transitions), reset restores defaults, customer is blocked from `/admin/branding`.
+
