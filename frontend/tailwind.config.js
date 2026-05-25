@@ -10,14 +10,14 @@ module.exports = {
                 sm: "calc(var(--radius) - 4px)",
             },
             colors: {
-                // C1B brand tokens (PRD §7.2) — used directly via bg-pn-* / text-pn-*
+                // Prima Nova brand tokens — dynamic via CSS vars (white-label friendly)
                 pn: {
-                    primary: "#0F172A",
-                    accent: "#6366F1",
+                    primary: "rgb(var(--pn-primary) / <alpha-value>)",
+                    accent: "rgb(var(--pn-accent) / <alpha-value>)",
                     "accent-soft": "#818CF8",
-                    success: "#10B981",
-                    warning: "#F59E0B",
-                    danger: "#F43F5E",
+                    success: "rgb(var(--pn-success) / <alpha-value>)",
+                    warning: "rgb(var(--pn-warning) / <alpha-value>)",
+                    danger: "rgb(var(--pn-danger) / <alpha-value>)",
                     surface: "#F8FAFC",
                     card: "#FFFFFF",
                     muted: "#94A3B8",

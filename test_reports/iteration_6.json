@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 6 validates the Tenant-Aware Branding frontend integration end-to-end (backend + frontend). Backend: created /app/backend/tests/test_branding.py with 6 pytest cases covering GET (unauth → defaults), PUT (no-auth=401/403, customer=403, admin=200 + persistence verified via GET), and POST /reset (customer=403, admin=200 + defaults verified). All 6 PASS (2.96s). Frontend: ran Playwright e2e for all 10 user stories — Login page renders branding.app_name + branding.logo_initials via data-testid='login-brand-name'/'login-brand-logo'; admin login → /portal works; sidebar shows 'Branding' (nav-admin-branding) for admin; /admin/branding renders (data-testid='admin-branding-page') with all identity fields, color pickers, save & reset buttons present; typing in branding-input-app_name updates the live preview panel in real-time; clicking Save persists the change, returns success toast, AND the sidebar logo+name (brand-name/brand-logo) update dynamically without page reload (RequireAuth/RequireAdmin guards + BrandingProvider context working); changing accent_color via the color picker (branding-color-picker-accent_color) saves successfully — verified document.documentElement style --pn-accent CSS var updates from '99 102 241' to '255 51 102' AND the active sidebar nav item backgroundColor becomes rgb(255, 51, 102); Reset button auto-confirms via page.on('dialog', d.accept()), POST /api/platform/branding/reset fires, sidebar restores 'Prima Nova'/'PN', --pn-accent reverts to '99 102 241' (#6366F1), and form fields show defaults; customer login does NOT show Branding nav (is_visible=False) and direct navigation to /admin/branding redirects to /portal as expected by RequireAdmin. After all tests, branding was reset on the backend (verified via curl: app_name=Prima Nova, accent=#6366F1, logo=PN, updated_at=null). NOTE: success toasts from sonner do intercept Playwright clicks even with force=True if they overlap the button's coordinates — workaround used: locator.dispatch_event('click') or wait 5s for toast to fade. App functionality is unaffected; this is purely a test scripting concern.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_branding.py",
+    "/app/test_reports/pytest/branding_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "branding_service.update_branding correctly strips empty strings and None from the patch BEFORE the $set update, preserving previous values for omitted/empty fields — good. The merge in get_branding ({**DEFAULTS, **doc}) also pops _id, so the response never leaks the Mongo doc id. Solid.",
+    "branding.jsx hexToRgbTriplet handles both 3-digit and 6-digit hex and gracefully falls back if hex is invalid. _applyCSSVars sets the 5 --pn-* vars on document.documentElement and also patches document.title with the new app_name — confirmed via runtime check (--pn-accent transitioned 99 102 241 → 255 51 102 after save).",
+    "tailwind.config.js uses rgb(var(--pn-*) / <alpha-value>) syntax, which requires Tailwind v3.3+ alpha-channel support. Verified that bg-pn-accent on the active NavLink picks up the dynamic CSS var (active nav backgroundColor=rgb(255,51,102) after picker save).",
+    "Login page uses useBranding() unauthenticated — works because GET /api/platform/branding is intentionally public. Branding loads on app boot before login → name/logo flash-free on /login.",
+    "AdminBranding.jsx onSave does client-side hex validation (HEX_RE=/^#[0-9A-Fa-f]{6}$/) before calling update() — prevents bogus colors from hitting the backend; backend has no hex regex check, so this client check is the only line of defense. Acceptable since the endpoint is admin-only, but consider mirroring the regex server-side as defense-in-depth.",
+    "Save button disabled={saving || loading || !dirty} — `dirty` computed from Object.keys(form) diff against branding state. Good UX (no-op saves disabled). Edge case: if the user types and reverts the value, button correctly disables again.",
+    "RequireAdmin guard in App.js correctly redirects non-admins to /portal (verified for customer role). The Branding nav link is also conditionally rendered (isAdmin) in DashboardLayout — defense in depth.",
+    "Reset uses window.confirm — acceptable for an internal admin tool. For testability we documented `page.on('dialog', d.accept())` works. Could be upgraded to a shadcn AlertDialog for consistency with the rest of the app, but not blocking.",
+    "Minor UX nit: the Live Preview 'Saved by/Saved at' line uses branding.updated_by/updated_at — these update only AFTER save, not during local form edits. This is correct, but the label 'Saved by' could be misread while form is dirty. Consider a 'Last saved' label."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_branding.py"
+  ],
+  "success_rate": {
+    "backend": "100% (6/6 pytest cases under TestGetBranding/TestUpdateBranding/TestResetBranding)",
+    "frontend": "100% (10/10 user-story flows: login branding render, admin login, admin sidebar Branding nav, /admin/branding render, real-time live preview, save+sidebar dynamic update, color picker → --pn-accent CSS var + active nav bg, Reset+window.confirm flow, customer no-nav, customer /admin/branding redirect)"
+  },
+  "test_credentials": "admin@primanova.com / admin123 (verified) and customer@primanova.com / customer123 (verified). Login response key remains 'token' stored under localStorage 'prima_token'.",
+  "seed_data_creation": "No persistent test data created. Temporary writes used TEST_-prefixed app_name; backend POST /api/platform/branding/reset was called at the end of both pytest and playwright runs — verified via curl that org_settings doc is deleted and GET returns DEFAULTS (app_name=Prima Nova, accent=#6366F1, logo=PN, updated_at=null).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Tenant-Aware Branding is now fully validated. Backend regression file is /app/backend/tests/test_branding.py (6 tests, ~3s). Frontend selectors confirmed: data-testid='nav-admin-branding', 'admin-branding-page', 'branding-input-app_name', 'branding-input-app_tagline', 'branding-input-logo_initials', 'branding-input-support_email', 'branding-color-picker-{primary|accent|success|warning|danger}_color', 'branding-color-input-{...}_color', 'branding-save-button', 'branding-reset-button', 'login-brand-name', 'login-brand-logo', 'brand-name', 'brand-logo'. The CSS-var contract is: hex #RRGGBB → 'R G B' triplet stored at --pn-{primary|accent|success|warning|danger}; Tailwind tokens (bg-pn-*, text-pn-*) consume them via rgb(var(--pn-*) / <alpha-value>). When writing Playwright that fires Save/Reset back-to-back, prefer locator.dispatch_event('click') OR wait ≥5s between actions to let the sonner toast fade — force=True alone does not bypass toast intercept reliably.",
+  "rca of the issue": "No production bugs. Two transient test-script issues were encountered and worked around: (1) sonner success toasts overlap the Save/Reset button rect, so consecutive Playwright clicks raise TimeoutError even with force=True; fix: dispatch_event('click') or sleep ~5s. (2) An earlier attempt to remove sonner toast nodes via JS evaluate corrupted React's reconciliation tree and caused 'insertBefore on Node' — never do DOM removal of sonner-managed nodes from within Playwright; always let sonner manage its own lifecycle."
+}

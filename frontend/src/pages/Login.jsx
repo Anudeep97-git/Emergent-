@@ -4,12 +4,14 @@ import { Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { useBranding } from "@/lib/branding";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
     const { user, login, loading } = useAuth();
+    const { branding } = useBranding();
     const navigate = useNavigate();
     const [email, setEmail] = useState("admin@primanova.com");
     const [password, setPassword] = useState("admin123");
@@ -51,15 +53,15 @@ export default function LoginPage() {
                     data-testid="login-form"
                 >
                     <div className="flex items-center gap-3 mb-7">
-                        <div className="w-11 h-11 rounded-2xl bg-pn-accent flex items-center justify-center shadow-lg shadow-pn-accent/40">
-                            <ShieldCheck className="w-6 h-6 text-white" />
+                        <div className="w-11 h-11 rounded-2xl bg-pn-accent flex items-center justify-center shadow-lg shadow-pn-accent/40 text-white font-bold tracking-wider text-sm" data-testid="login-brand-logo">
+                            {branding.logo_initials || <ShieldCheck className="w-6 h-6 text-white" />}
                         </div>
                         <div>
-                            <div className="font-display text-2xl font-bold leading-none text-pn-primary tracking-tight">
-                                Prima Nova
+                            <div className="font-display text-2xl font-bold leading-none text-pn-primary tracking-tight" data-testid="login-brand-name">
+                                {branding.app_name}
                             </div>
                             <div className="text-xs uppercase tracking-[0.22em] text-pn-muted mt-1.5">
-                                Credit Risk Console
+                                {branding.app_tagline}
                             </div>
                         </div>
                     </div>

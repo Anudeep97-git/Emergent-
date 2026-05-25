@@ -6,6 +6,13 @@
 
 @layer base {
     :root {
+        /* Prima Nova brand colors — stored as RGB triplets so Tailwind alpha modifiers (/30, /40) work */
+        --pn-primary: 15 23 42;
+        --pn-accent: 99 102 241;
+        --pn-success: 16 185 129;
+        --pn-warning: 245 158 11;
+        --pn-danger: 244 63 94;
+
         --background: 210 40% 98%;
         --foreground: 222 47% 11%;
         --card: 0 0% 100%;

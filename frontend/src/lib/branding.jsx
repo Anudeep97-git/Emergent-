@@ -13,15 +13,40 @@ const DEFAULTS = {
     support_email: "support@primanova.com",
 };
 
-const BrandingCtx = createContext({ branding: DEFAULTS, refresh: () => {}, update: () => {}, reset: () => {} });
+const BrandingCtx = createContext({
+    branding: DEFAULTS,
+    loading: true,
+    refresh: () => {},
+    update: () => {},
+    reset: () => {},
+});
+
+// "#0F172A" -> "15 23 42"  (Tailwind alpha-channel friendly)
+const hexToRgbTriplet = (hex) => {
+    if (!hex || typeof hex !== "string") return null;
+    const h = hex.replace("#", "").trim();
+    const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
+    if (full.length !== 6) return null;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+    return `${r} ${g} ${b}`;
+};
 
 const _applyCSSVars = (b) => {
     const root = document.documentElement;
-    root.style.setProperty("--pn-color-primary", b.primary_color);
-    root.style.setProperty("--pn-color-accent", b.accent_color);
-    root.style.setProperty("--pn-color-success", b.success_color);
-    root.style.setProperty("--pn-color-warning", b.warning_color);
-    root.style.setProperty("--pn-color-danger", b.danger_color);
+    const map = {
+        "--pn-primary": b.primary_color,
+        "--pn-accent": b.accent_color,
+        "--pn-success": b.success_color,
+        "--pn-warning": b.warning_color,
+        "--pn-danger": b.danger_color,
+    };
+    Object.entries(map).forEach(([cssVar, hex]) => {
+        const triplet = hexToRgbTriplet(hex);
+        if (triplet) root.style.setProperty(cssVar, triplet);
+    });
     if (b.app_name) document.title = `${b.app_name} · Credit Risk`;
 };
 
