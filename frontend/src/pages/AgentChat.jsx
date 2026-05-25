@@ -65,7 +65,7 @@ export default function AgentChatPage() {
                 <div>
                     <div className="text-[11px] uppercase tracking-[0.22em] text-c1b-muted mb-2">Prima Nova</div>
                     <h1 className="font-display text-4xl sm:text-5xl font-bold text-c1b-primary tracking-tight">
-                        Credit Risk Co-Pilot
+                        Credit Risk Agent
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
