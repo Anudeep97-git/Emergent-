@@ -158,7 +158,7 @@ export default function CustomerPortalPage() {
                                         <div>
                                             <div className="text-[10px] uppercase tracking-wider text-pn-muted">Limit</div>
                                             <div className="text-sm font-semibold text-pn-primary">
-                                                ₹{Math.round(c.credit_limit / 1000)}k
+                                                ${Number(c.credit_limit).toLocaleString(undefined, { maximumFractionDigits: 0 })}
                                             </div>
                                         </div>
                                         <div>

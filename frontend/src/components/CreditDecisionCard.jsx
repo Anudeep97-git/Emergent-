@@ -14,7 +14,7 @@ const Delta = ({ from, to, suffix = "", money = false }) => {
     const color = same ? "#94A3B8" : up ? "#10B981" : "#F43F5E";
     const fmt = (v) =>
         money
-            ? "₹" + Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 })
+            ? "$" + Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 })
             : (Number(v) * 100).toFixed(2) + "%";
     return (
         <div className="flex items-center gap-2">

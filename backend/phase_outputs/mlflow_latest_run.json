@@ -1,8 +1,9 @@
 {
-  "run_id": "f9a2082f2f0a486bb8ba04d1b6397ec0",
+  "run_id": "4d7c0a2b598c424aaef264f7fb1c1a11",
   "roc_auc": 1.0,
-  "model_version": "v1.0.0",
-  "model_hash": "e3d679681ffcf65cc61500c576391135",
-  "trained_at": "2026-05-16T05:09:57.746738+00:00",
-  "trigger": "manual"
+  "model_version": "v1.1.0",
+  "model_hash": "fecf5fd876ad052e048b6fa407d0da44",
+  "trained_at": "2026-05-25T09:55:09.691886+00:00",
+  "trigger": "manual",
+  "data_source": "real"
 }

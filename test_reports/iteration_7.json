@@ -1,0 +1,42 @@
+{
+  "summary": "Iteration 7 validates the real-bank-dataset migration (100 customers / 751 real transactions from real_dataset.xlsx) and the rupee→USD currency switch. Backend: created /app/backend/tests/test_real_dataset_usd.py (8 pytest cases) — ALL 8 PASS in 1.44s. Verified GET /api/platform/info → model_registry.version=v1.1.0, currency=USD, n_customers=100, n_transactions=751, data_source=real_bank_dataset.xlsx; GET /api/dashboard/summary → total_customers=100, model_version=v1.1.0, low=70/med=15/high=15 (matches 70/15/15 percentile thresholds); GET /api/customer/all → exactly 100 customers with credit_limits in $500-$1000 band; GET /api/customer/profile/C001 → credit_limit=700.0, current_balance=236.86, utilization=0.3384, region=West, employment=salaried, age=40, income=$42,130.20 (within $30k-$80k expected band); GET /api/customer/decision/C001 → LOW + EXPAND + recommended_limit=804.99 (>700); GET /api/customer/profile/C009 → HIGH risk, util=0.7087; GET /api/customer/decision/C009 → HIGH + RESTRICT + recommended_limit=400.01 (= 80% of 500, exact 20% reduction); GET /api/customer/spend-chart/C001 → 12 monthly rows with positive purchases derived from real Customer_Transactions sheet. Backend regression: ml_service (4/4) and branding (6/6) tests still PASS. Frontend: Playwright e2e — admin login → /portal works; KPI bar shows '100' total customers and avg risk '33.5%' (% suffix rendered); /customer/C001 shows Credit Limit '$700', Balance '$237', Utilization '34%', Income '$42,130'; Credit Decision card shows 'Expand Credit' with '$700 → $805' delta in USD; Spend Trajectory Y-axis ticks formatted as '$0/$15/$30/$45/$60' (USD); DOM walker scan for U+20B9 (₹) returned ZERO matches on both /portal and /customer/C001. Visual screenshot confirms full USD compliance.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "tests/test_mlflow.py, tests/test_observability.py, tests/test_prometheus_metrics.py, tests/test_startup_log.py, tests/backend_test.py", "issue": "Pre-existing partial-refactor bug — fixtures were renamed from a hardcoded global BASE to a base_url pytest fixture, but the test functions themselves still reference the undefined name BASE → 62 NameError failures. NOT caused by this iteration's data/currency change; the diff vs HEAD~5 in test_mlflow.py shows the old `BASE = None; with open('/app/frontend/.env')...` block was removed but functions like test_runs_unauthenticated still do `requests.get(f\"{BASE}/api/...\")`. Fix: rename to base_url and add it as a parameter to every standalone test function. Iteration 6's claim that these previously passed is contradicted by current artifacts; pytest XMLs in /app/test_reports/pytest/ are stale (timestamped 2026-05-15)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_real_dataset_usd.py",
+    "/app/test_reports/pytest/real_dataset_usd_results.xml"
+  ],
+  "action_items": [
+    "OPTIONAL housekeeping (not blocking this iteration): repair test_mlflow.py / test_observability.py / test_prometheus_metrics.py / test_startup_log.py / backend_test.py by replacing `BASE` references with the `base_url` fixture parameter so the rest of the regression suite can run."
+  ],
+  "critical_code_review_comments": [
+    "build_artifacts.py income derivation (credit_limit*35 + 18000 + bureau_adj) yields values in $30k-$80k — observed C001 $42,130 (limit 700 → 700*35=24500 +18000=42500 ~ √). Reasonable.",
+    "Risk distribution is locked at 70/15/15 by percentile threshold and ROC AUC = 1.0 — explicitly called out as acceptable for demo per request. Worth a note in PRD that this is overfit on 100 rows and NOT a production-grade evaluation.",
+    "CustomerDashboard.jsx correctly dropped the `/1000)k` division when switching to USD — full dollar amounts now render. Verified via screenshot ('$42,130' not '$42k').",
+    "Recharts Y-axis tick formatter renders as text inside <text> SVG elements (visible in screenshot as $0/$15/$30/$45/$60) but my CSS selector `.recharts-yAxis text` returned empty — likely the chart uses a different class hierarchy (`recharts-cartesian-axis`). Not a bug, just a test scripting note for the next agent.",
+    "DOM walker rupee scan is the most reliable way to catch lingering ₹ — used U+20B9 TreeWalker. Zero matches across both routes. The previous iteration's grep-based approach in source files won't catch dynamic content; this DOM scan should be the regression check going forward.",
+    "Console warning: 'The width(-1) and height(-1) of chart should be greater than 0' fires twice on /customer/C001. Cosmetic only — chart renders fine after layout settles. Could be fixed by giving Recharts a minHeight on the wrapper."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_real_dataset_usd.py"
+  ],
+  "success_rate": {
+    "backend": "100% on iteration-relevant tests (8/8 test_real_dataset_usd.py + 4/4 test_ml_service.py + 6/6 test_branding.py = 18/18). 62 unrelated NameError failures in test_mlflow/observability/prometheus_metrics/startup_log/backend_test.py — pre-existing, not caused by this iteration.",
+    "frontend": "100% (admin login → /portal, KPI=100, avg risk %-suffix, $-only currency on /portal, /customer/C001 all four KPI cards show $/% values, Credit Decision '$700 → $805', Spend Trajectory Y-axis $0/$15/$30/$45/$60, zero ₹ via DOM walker on both routes)."
+  },
+  "test_credentials": "admin@primanova.com / admin123 (verified working). customer@primanova.com / customer123 (not retested this iteration — covered by iteration 6).",
+  "seed_data_creation": "None. All assertions read live data produced by `python3 -m ml.build_artifacts` (already executed pre-test per main agent).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The real-dataset/USD migration is fully validated end-to-end. Persistent regression file: /app/backend/tests/test_real_dataset_usd.py (run with `pytest tests/test_real_dataset_usd.py -v`). Key data-points to assert against in future runs: C001 limit=700, balance=236.86, util=0.3384, income≈42130, decision EXPAND→805; C009 limit=500, util=0.7087, decision RESTRICT→400.01; model_registry version=v1.1.0, n_customers=100, n_transactions=751, currency=USD, data_source=real_bank_dataset.xlsx. Frontend regression: use the DOM TreeWalker scan with codepoint U+20B9 (₹) to detect rupee leakage — grep on source is insufficient because some labels come from API responses. The 5 broken pre-existing test files (test_mlflow, test_observability, test_prometheus_metrics, test_startup_log, backend_test) need a one-liner refactor: replace `BASE` with `base_url` fixture parameter everywhere — main agent's call whether to tackle this in a separate housekeeping pass.",
+  "rca of the issue": "No production bugs in this iteration. The 62 NameError failures are scoped to test scaffolding only (not server code) and predate this iteration — diff of test_mlflow.py vs HEAD~5 shows a partial refactor removed the BASE global but didn't update the function bodies."
+}

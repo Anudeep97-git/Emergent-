@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, Link } from "react-router-dom";
-import { ChevronLeft, CreditCard, Wallet, Activity, IndianRupee } from "lucide-react";
+import { ChevronLeft, CreditCard, Wallet, Activity, DollarSign } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { api } from "@/lib/api";
 import RadialGauge from "@/components/RadialGauge";
@@ -100,10 +100,10 @@ export default function CustomerDashboardPage() {
 
             {/* KPI row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <KPI idx={0} icon={CreditCard} label="Credit Limit" value={`₹${Math.round(profile.credit_limit / 1000)}k`} tint="#6366F1" />
-                <KPI idx={1} icon={Wallet}      label="Balance"      value={`₹${Math.round(profile.current_balance / 1000)}k`} tint="#0F172A" />
+                <KPI idx={0} icon={CreditCard} label="Credit Limit" value={`$${Number(profile.credit_limit).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} tint="#6366F1" />
+                <KPI idx={1} icon={Wallet}      label="Balance"      value={`$${Number(profile.current_balance).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} tint="#0F172A" />
                 <KPI idx={2} icon={Activity}    label="Utilization"  value={`${(profile.utilization_rate * 100).toFixed(0)}%`}  tint="#F59E0B" />
-                <KPI idx={3} icon={IndianRupee} label="Income"       value={`₹${Math.round(profile.income / 1000)}k`}           tint="#10B981" />
+                <KPI idx={3} icon={DollarSign} label="Income"       value={`$${Number(profile.income).toLocaleString(undefined, { maximumFractionDigits: 0 })}`}           tint="#10B981" />
             </div>
 
             {/* Risk + SHAP + Decision */}
@@ -150,7 +150,7 @@ export default function CustomerDashboardPage() {
                                 tick={{ fontSize: 11, fill: "#94A3B8" }}
                                 tickFormatter={(v) => v?.slice(0, 7)}
                             />
-                            <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} tickFormatter={(v) => `₹${Math.round(v / 1000)}k`} />
+                            <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} tickFormatter={(v) => `$${Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 })}`} />
                             <Tooltip
                                 contentStyle={{
                                     background: "white",
@@ -158,7 +158,7 @@ export default function CustomerDashboardPage() {
                                     borderRadius: 12,
                                     fontSize: 12,
                                 }}
-                                formatter={(v) => `₹${Number(v).toLocaleString()}`}
+                                formatter={(v) => `$${Number(v).toLocaleString()}`}
                             />
                             <Line type="monotone" dataKey="purchases"     stroke="#6366F1" strokeWidth={2.5} dot={{ r: 3 }} />
                             <Line type="monotone" dataKey="cash_advances" stroke="#F43F5E" strokeWidth={2}   dot={{ r: 3 }} />

@@ -1,0 +1,15 @@
+artifact_uri: file:///app/backend/mlruns/882304546544872152/4d7c0a2b598c424aaef264f7fb1c1a11/artifacts
+end_time: 1779702909738
+entry_point_name: ''
+experiment_id: '882304546544872152'
+lifecycle_stage: active
+run_id: 4d7c0a2b598c424aaef264f7fb1c1a11
+run_name: prima-real-20260525-095509
+run_uuid: 4d7c0a2b598c424aaef264f7fb1c1a11
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1779702909727
+status: 3
+tags: []
+user_id: root

@@ -1,0 +1,14 @@
+{
+  "model_name": "PrimaNova_LightGBM_Champion",
+  "version": "v1.1.0",
+  "algorithm": "LightGBM",
+  "n_features": 53,
+  "n_customers": 100,
+  "n_transactions": 751,
+  "data_source": "real_bank_dataset.xlsx",
+  "currency": "USD",
+  "roc_auc": 1.0,
+  "status": "PRODUCTION",
+  "model_hash": "8c9167d8e4631c3dd585e8a571ca1987",
+  "trained_at": "2026-05-25T09:53:33.576416+00:00"
+}
